@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+
+    <!-- Scripts -->  
+    <script src="js/jquery-1.8.3.min.js"></script>    
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="js/functions.js"></script>
+
+	<script type="text/javascript">
+	
+	 $(document).ready(function(){
+	 
+		$("#download_apk").click(function() {	
+			
+			var url = "http://" + document.domain + ":5556" + "/download/mozo.apk";  
+			
+			window.location.href = url;
+		
+		});		
+		
+	 });	
+	
+	</script>
+	
+	
+	
+  </head>
+  
+  <body>
+
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+
+          <!-- row-fluid: start -->
+          <div class="row-fluid">
+
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+
+              <!-- content: srtat -->
+              <div id="content" class="span9" style="display:none;">
+                <div class="leaderboard">
+                  <h1>Carga de datos de la Carta</h1>
+                  <p>Mediante esta interfaz web, usted tendrá la posibilidad de administrar todos los datos relacionados a la Carta del Restaurante. Los mismos, se verán reflejados en cada tablet.</p>                            
+                </div>
+                <div class="row-fluid">
+				 <div class="span3">
+                    <h2>Usuarios</h2>              
+                    <p>Tendrá la posibilidad de administrar los usuarios del sistema para carta y comanda del Restaurante. Podrá definir mozos y administradores.</p>                    
+                  </div><!--/span-->				
+                  <div class="span3">
+                    <h2>Men&uacute;s</h2>              
+                    <p>Cargar diversos me&uacute;s, teniendo en cuenta la división de turnos o las franjas horarias en las cuales el restaurante ofrece sus servicios. Por ejemplo: Men&uacute; de la mañana, Men&uacute; del mediod&iacute;a, Men&uacute; de la tarde y Men&uacute; de la noche.</p>                    
+                  </div><!--/span-->
+                  <div class="span3">
+                    <h2>Categor&iacute;as</h2>              
+                    <p>Los Men&uacute;s estarán divididos en diferentes categor&iacute;as que usted mismo podr&aacute; definir. Ejemplo de catego&iacute;as son: Bebidas, Entradas, Platos Principales, Postres, etc. </p>                    
+                  </div><!--/span-->
+                  <div class="span3">
+                    <h2>Items</h2>
+                    <p>Cada Item del Men&uacute; deber&aacute; pertenecer a una categor&iacute; y puede contener una im&aacute;gen y/o video. </p>                    
+                  </div><!--/span-->
+                </div><!--/row-->
+				
+				<div class="leaderboard">  
+					<h1>Descargar</h1>				
+                  <p>Descarga la aplicación en un Android, instalala en tu tablet y comenzá a utilizar el sistema. Hacé click en el link DESCARGAR, luego de su descarga instalá la aplicación en tu dispositivo. Ésta esta ya pre-configurada para interactuar con el sistema.</p>                               
+                  <p><a class="btn btn-success btn-large" id="download_apk">DESCARGAR</a></p>
+                </div>
+
+              <hr>
+              <footer>
+                <p>© Copyright 2012 - Todos los derechos reservados.</p>
+              </footer>
+
+              </div>
+              <!-- content: end --> 
+
+          </div>
+          <!-- row-fluid: end -->   
+      </div>
+      <!-- container-fluid: end -->          
+  </body>
+</html>

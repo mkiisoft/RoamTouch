@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+    <!-- Scripts -->  
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>    
+    <script src="../js/functions.js"></script>
+    <script src="../js/jquery.form.js"></script>
+    
+    <script type="text/javascript">
+
+    /* Funcion para obtener los menus existentes */
+    function get_dining_tables(){
+        $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: { 
+                'action': GET_DINING_TABLES
+              },
+              beforeSend: function(){
+                  $('#loading').toggleClass('off');
+              },
+              success: function(data){
+
+                  $('#loading').toggleClass('off');                  
+
+                  if( !($.isEmptyObject(data)) ){
+                    
+                      $('#table_dining_tables').html("<thead>"+
+                          "<th>Mesa</th>"+
+                          "<th>Estado</th>"+
+                          "<th colspan='2'></th>"+
+                          "</thead>"+
+                          "<tbody>"+
+                          "<body>"+
+                          "</tbody>");
+
+                      for (var i=0, len=data.length; i < len; i++) {
+                          
+                          $('#table_dining_tables > tbody').append(
+                                "<tr class="+ data[i]._id +">"+
+                                  "<td class='dining_table_description'>"+ data[i].description +"</td>"+
+                                  "<td class='dining_table_status_description'>"+ data[i].dining_table_status_description +"</td>"+
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='edit_dining_table("+ data[i]._id +")'><i class='icon-edit'></i>Editar</a>"+
+                                  "</td>"+
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='delete_dining_table("+ data[i]._id +")'><i class='icon-remove-circle'></i>Eliminar</a>"+
+                                  "</td>"+
+                                "</tr>");   
+                      }
+                  }
+              },
+              complete: function(){                  
+                  /*$('#add_dining_table_form').show();
+                  $('#edit_dining_table_form').hide(); */   
+                  $('.scroll_table_dining_tables').show();  
+                  $('#add_new_dining_table').show();
+
+              }
+          });   
+    }  
+
+    /* Funcion para eliminar un menu */
+    function delete_dining_table(dining_table_id){
+
+      if ( confirm("¿Está seguro de eliminar la Mesa?") ) {
+
+          $('#table_dining_tables > tbody > tr.' + dining_table_id).remove();        
+
+          $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: {             
+              'dining_table_id': dining_table_id,         
+              'action': DELETE_DINING_TABLE
+              },
+              success: function(data){
+                  $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>La mesa se elimin&oacute; con &eacute;xito!</div>");
+          
+                  $('#message').fadeOut(4000, function() {
+                      $('#alert_message').remove();
+                      $('#message').show();
+                  });
+              }         
+          });  
+      }
+    }
+
+    /* Funcion para editar una mesa */
+    function edit_dining_table( dining_table_id ){
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: {             
+            'dining_table_id': dining_table_id,         
+            'action': GET_DINING_TABLE_BY_ID
+            },
+            success: function(data){                 
+                $('#add_dining_table_form').hide();         
+                $('#edit_dining_table_form').show();    
+
+                $('.scroll_table_dining_tables').hide(); 
+                $('#add_new_dining_table').hide();   
+
+                $('#edit_action').val(UPDATE_DINING_TABLE);             
+            
+                $('#dining_table_id').val(data[0]._id); 
+                $('#edit_dining_table_description').val(data[0].description); 
+            }         
+        });   
+    }
+        
+    $(document).ready(function(){    
+
+        get_loading_image(); 
+
+        /* Obtengo las mesas existentes al cargar la pagina*/
+        get_dining_tables();   
+
+        /* Agrego una mesa */
+        $("#add_dining_table_form").ajaxForm({
+
+              beforeSubmit: function(arr, $form, options) { 
+                // The array of form data takes the following form: 
+                console.log(arr);
+                console.log(options);
+                
+                /* Si no escribio la descripcion de la mesa */
+                if( arr[1].value == "" ){
+                
+                  $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe ingresar la descripción de la Mesa.</div>");
+
+                  $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                  });
+                
+                  return false;
+                  
+                }                  
+              },              
+              success: function() {
+
+                   $('#add_dining_table_form').hide();
+                      $('#dining_table_description').val('');
+                      $('.scroll_table_dining_tables').hide();
+
+                      $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>La mesa se cre&oacute; con &eacute;xito!</div>");
+                      
+                      get_dining_tables();                      
+
+                      $('#message').fadeOut(4000, function() {
+                          $('#alert_message').remove();
+                          $('#message').show();
+                      });
+                                    
+              }
+
+        });
+
+        $('#edit_dining_table_form').ajaxForm({
+
+            beforeSubmit: function(arr, $form, options) { 
+                // The array of form data takes the following form: 
+                console.log(arr);
+                console.log(options);
+                
+                /* Si no escribio la descripcion de la mesa */
+                if( arr[1].value == "" ){
+                
+                  $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe ingresar la descripción de la Mesa.</div>");
+
+                  $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                  });
+                
+                  return false;
+                  
+                }                  
+              },              
+              success: function() {
+
+                  $('#edit_dining_table_form').hide();
+                  $('#dining_table_id').val('');
+
+                  $('#add_new_dining_table').show();
+
+                  $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>La mesa se actualiz&oacute; con &eacute;xito!</div>");
+                  
+                  get_dining_tables();                      
+
+                  $('#message').fadeOut(4000, function() {
+                      $('#alert_message').remove();
+                      $('#message').show();
+                  });
+                                    
+              }
+
+        });
+
+        
+        $('#add_new_dining_table').click(function(){  
+            $('.scroll_table_dining_tables').hide();   
+            $(this).hide();       
+            $('#edit_dining_table_form').hide();
+
+            $('#action').val(CREATE_DINING_TABLE);
+
+            $('#dining_table_id').val('');
+            $('#edit_dining_table_description').val('');
+            $('#add_dining_table_form').show();
+        });
+
+    });    
+    
+    </script>
+
+  </head>
+  
+  <body>
+
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+          <!-- row-fluid: start -->
+          <div class="row-fluid">
+
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+            
+              <!-- content: start -->
+              <div id="content" class="span9" style="display:none;">  
+
+                  <div id="message"></div>                     
+
+                  <div>
+                    <button type="button" id="add_new_dining_table" class="btn btn-success" style="margin-top: 10px; display:none;">Agregar Mesa</button> 
+                  </div>              
+                  
+                  <div class="scroll_table_dining_tables">
+
+                    <div id="loading" class="off"><img src="#" id="loading_img"/><p style="font-weight: bold;">cargando...</p></div>
+
+                    <table class="table table-hover" id="table_dining_tables">                
+                    </table> 
+                  </div>
+
+                  <form class="form-horizontal" id="add_dining_table_form" enctype="multipart/form-data" method="post" style="display:none;">
+                    <fieldset>
+
+                        <input type="hidden" name="action" id="action" value="">
+
+                        <legend>Agregar Mesa</legend>  
+                        <div class="control-group">
+                          <label class="control-label">Descripcí&oacute;n de la Mesa:</label>                   
+                          <div class="controls">
+                              <input type="text" class="span3" id="dining_table_description" name="description" />
+                          </div>
+                        </div>
+
+                        <input type="hidden" name="dining_table_status_id" id="dining_table_status_id" value="2" />
+
+                        <div class="form-actions">
+                          <!--<button type="button" id="submit_dining_table" class="btn btn-primary">Crear</button>-->
+                          <input type="submit"  class="btn btn-primary" value="Crear" >
+                          <button class="btn" id="cancel_dining_table">Cancelar</button>
+                        </div>
+
+                    </fieldset>              
+                  </form>
+
+                  <form class="form-horizontal" id="edit_dining_table_form" enctype="multipart/form-data" method="post" style="display:none;">
+                      <fieldset>
+
+                          <input type="hidden" name="edit_action" id="edit_action" value="">
+
+                          <legend>Editar Mesa</legend>  
+                          <div class="control-group">
+                            <label class="control-label">Descripcí&oacute;n de la Mesa:</label>                 
+                            <div class="controls">
+                                <input type="text" class="span3" id="edit_dining_table_description" name="dining_table_description" />
+                                <input type="hidden" id="dining_table_id" name="dining_table_id" value="">
+                            </div>
+                          </div>
+
+                          <input type="hidden" name="dining_table_status_id" id="dining_table_status_id" value="2" />
+
+                          <div class="form-actions">
+                            <!--<button type="button" id="edit_dining_table" class="btn btn-primary">Editar</button>-->
+                            <input type="submit"  class="btn btn-primary" value="Editar" >
+                            <button class="btn">Cancelar</button>
+                          </div>
+
+                      </fieldset>              
+                  </form>
+              </div>    
+              <!-- content: end -->
+
+          </div> 
+          <!-- row-fluid: end --> 
+      </div>
+      <!-- container-fluid: end -->
+      
+  </body>
+</html>

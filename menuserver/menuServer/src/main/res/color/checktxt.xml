@@ -1,0 +1,4 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true" android:color="#df3838" /> <!-- pressed -->
+    <item android:color="#FFFFFF" /> <!-- default/unchecked -->
+</selector>

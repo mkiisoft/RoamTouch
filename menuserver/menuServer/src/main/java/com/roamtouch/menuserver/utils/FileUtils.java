@@ -1,0 +1,611 @@
+/*
+ * Copyright (C) 2006 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.roamtouch.menuserver.utils;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.regex.Pattern;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.Context;
+import android.net.ParseException;
+import android.util.Log;
+
+import com.roamtouch.menuserver.MenuServerApplication;
+import com.roamtouch.menuserver.shared.Constans;
+
+
+/**
+ * Tools for managing files.  Not for public consumption.
+ * @hide
+ */
+public class FileUtils
+{
+    public static final int S_IRWXU = 00700;
+    public static final int S_IRUSR = 00400;
+    public static final int S_IWUSR = 00200;
+    public static final int S_IXUSR = 00100;
+
+    public static final int S_IRWXG = 00070;
+    public static final int S_IRGRP = 00040;
+    public static final int S_IWGRP = 00020;
+    public static final int S_IXGRP = 00010;
+
+    public static final int S_IRWXO = 00007;
+    public static final int S_IROTH = 00004;
+    public static final int S_IWOTH = 00002;
+    public static final int S_IXOTH = 00001;
+    
+    private MenuServerApplication app;
+    
+    final static String TAG = "FileUtils";
+    
+    public FileUtils(){ 
+    	
+    }
+    
+    public FileUtils(Context context){    	
+    	app = ((MenuServerApplication) context.getApplicationContext());
+    }
+    
+    /**
+     * File status information. This class maps directly to the POSIX stat structure.
+     * @hide
+     */
+    public static final class FileStatus {
+        public int dev;
+        public int ino;
+        public int mode;
+        public int nlink;
+        public int uid;
+        public int gid;
+        public int rdev;
+        public long size;
+        public int blksize;
+        public long blocks;
+        public long atime;
+        public long mtime;
+        public long ctime;
+    }
+    
+    /**
+     * Get the status for the given path. This is equivalent to the POSIX stat(2) system call. 
+     * @param path The path of the file to be stat'd.
+     * @param status Optional argument to fill in. It will only fill in the status if the file
+     * exists. 
+     * @return true if the file exists and false if it does not exist. If you do not have 
+     * permission to stat the file, then this method will return false.
+     */
+    public static native boolean getFileStatus(String path, FileStatus status);
+
+    /** Regular expression for safe filenames: no spaces or metacharacters */
+    private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("[\\w%+,./=_-]+");
+
+    public static native int setPermissions(String file, int mode, int uid, int gid);
+
+    public static native int getPermissions(String file, int[] outPermissions);
+
+    /** returns the FAT file system volume ID for the volume mounted 
+     * at the given mount point, or -1 for failure
+     * @param mount point for FAT volume
+     * @return volume ID or -1
+     */
+    public static native int getFatVolumeId(String mountPoint);
+        
+    // copy a file from srcFile to destFile, return true if succeed, return
+    // false if fail
+    public static boolean copyFile(File srcFile, File destFile) {
+        boolean result = false;
+        try {
+            InputStream in = new FileInputStream(srcFile);
+            try {
+                result = copyToFile(in, destFile);
+            } finally  {
+                in.close();
+            }
+        } catch (IOException e) {
+            result = false;
+        }
+        return result;
+    }
+    
+    /**
+     * Copy data from a source stream to destFile.
+     * Return true if succeed, return false if failed.
+     */
+    public static boolean copyToFile(InputStream inputStream, File destFile) {
+        try {
+            OutputStream out = new FileOutputStream(destFile);
+            try {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) >= 0) {
+                    out.write(buffer, 0, bytesRead);
+                }
+            } finally {
+                out.close();
+            }
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Check if a filename is "safe" (no metacharacters or spaces).
+     * @param file  The file to check
+     */
+    public static boolean isFilenameSafe(File file) {
+        // Note, we check whether it matches what's known to be safe,
+        // rather than what's known to be unsafe.  Non-ASCII, control
+        // characters, etc. are all unsafe by default.
+        return SAFE_FILENAME_PATTERN.matcher(file.getPath()).matches();
+    }
+
+    /**
+     * Read a text file into a String, optionally limiting the length.
+     * @param file to read (will not seek, so things like /proc files are OK)
+     * @param max length (positive for head, negative of tail, 0 for no limit)
+     * @param ellipsis to add of the file was truncated (can be null)
+     * @return the contents of the file, possibly truncated
+     * @throws IOException if something goes wrong reading the file
+     */
+    public static String readTextFile(File file, int max, String ellipsis) throws IOException {
+        InputStream input = new FileInputStream(file);
+        try {
+            if (max > 0) {  // "head" mode: read the first N bytes
+                byte[] data = new byte[max + 1];
+                int length = input.read(data);
+                if (length <= 0) return "";
+                if (length <= max) return new String(data, 0, length);
+                if (ellipsis == null) return new String(data, 0, max);
+                return new String(data, 0, max) + ellipsis;
+            } else if (max < 0) {  // "tail" mode: read it all, keep the last N
+                int len;
+                boolean rolled = false;
+                byte[] last = null, data = null;
+                do {
+                    if (last != null) rolled = true;
+                    byte[] tmp = last; last = data; data = tmp;
+                    if (data == null) data = new byte[-max];
+                    len = input.read(data);
+                } while (len == data.length);
+
+                if (last == null && len <= 0) return "";
+                if (last == null) return new String(data, 0, len);
+                if (len > 0) {
+                    rolled = true;
+                    System.arraycopy(last, len, last, 0, last.length - len);
+                    System.arraycopy(data, 0, last, last.length - len, len);
+                }
+                if (ellipsis == null || !rolled) return new String(last);
+                return ellipsis + new String(last);
+            } else {  // "cat" mode: read it all
+                ByteArrayOutputStream contents = new ByteArrayOutputStream();
+                int len;
+                byte[] data = new byte[1024];
+                do {
+                    len = input.read(data);
+                    if (len > 0) contents.write(data, 0, len);
+                } while (len == data.length);
+                return contents.toString();
+            }
+        } finally {
+            input.close();
+        }
+    }
+    
+    public static boolean deleteDirectory(File path) {
+        if( path.exists() ) {
+          File[] files = path.listFiles();
+          if (files == null) {
+              return true;
+          }
+          for(int i=0; i<files.length; i++) {
+             if(files[i].isDirectory()) {
+               deleteDirectory(files[i]);
+             }
+             else {
+               files[i].delete();
+             }
+          }
+        }
+        return( path.delete() );
+      }
+     
+    
+    /**
+     * removeExtention
+     * @param filePath
+     * @return
+     */    
+    public static String removeExtention(String filePath) {	    
+	    File f = new File(filePath);
+	    if (f.isDirectory()) return filePath;
+	    String name = f.getName();
+	    final int lastPeriodPos = name.lastIndexOf('.');
+	    if (lastPeriodPos <= 0)
+	    {	    
+	        return filePath;
+	    }
+	    else
+	    {	     
+	        File renamed = new File(f.getParent(), name.substring(0, lastPeriodPos));
+	        return renamed.getPath();
+	    }
+	}
+    
+    
+    /**
+     * removeExtUpperAddSlash
+     * @param n
+     * @return
+     */
+    public String removeExtUpperAddSlash(String n){
+    	String name = removeExtention(n);	
+    	name = name.toLowerCase();
+    	name = name.replace(" ", "_");
+		name = replaceSpecialCharFolder(name);
+		return name;
+    }
+    
+    /**
+     * createFolderName
+     * @param folder
+     * @return
+     */
+	public String createFolderName(String folder){
+		folder = folder.toLowerCase();
+		folder = folder.replace(" ", "_");
+		folder = replaceSpecialCharFolder(folder);
+		return folder;
+	}
+	
+	/**
+	 * replaceSpecialCharFolder
+	 * @param txt
+	 * @return
+	 */
+	public String replaceSpecialCharFolder(String txt){		
+		txt = txt.replaceAll("á", "a");		
+		txt = txt.replaceAll("é", "e");
+		txt = txt.replaceAll("í", "i");
+		txt = txt.replaceAll("ó", "o");
+		txt = txt.replaceAll("ú", "u");
+		txt = txt.replaceAll("ñ", "n");		
+		return txt;
+	}
+    
+    
+    /**
+     * getFileExtension
+     * @param file
+     * @return
+     */
+    public String getFileExtension(String file){            
+    	String filenameArray[] = file.split("\\.");
+       return filenameArray[1];   	
+    }
+    
+    public boolean hasFileExtension(String file){            
+       return file.contains("\\.");       
+    }
+    
+    
+    public void storeLog(String text)
+    {        	
+    	boolean first = false;
+    	File logFolder = new File(app.getSDCARD() + "/httpd/log/files/" );
+    	if (!logFolder.exists())
+    	{
+    		logFolder.mkdir();
+    	}    		
+    	String dateFormat = app.getTimeDate("dd_MM_yyyy");
+    	File logFile = new File(logFolder.toString()+ "/" + getWeekDay() + "_" + dateFormat + "" + ".json");
+    	if (!logFile.exists()){
+    		
+    		try
+    		{
+    			logFile.createNewFile();             
+    			writeHTMLLog();
+    			first=true;
+    		} 
+    		catch (IOException e)
+    		{            
+    			e.printStackTrace();
+    		}
+    		
+    	} else {    	   
+    	
+    		removeLastCharacter(logFile);    	   
+    	}
+    	
+       try
+       {          
+          BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));         
+          String[] data = text.split("-");
+          String dataJson = toLogJSON(data);
+          String d = null;
+          if (first){
+        	  d = "[" + dataJson + "]";
+          } else {
+        	  d = ","  + dataJson + "]";
+          }  
+          String formatted = new String(d.getBytes("ISO-8859-1"), "UTF-8");
+          buf.append(d);          
+          buf.close();
+       }
+       catch (IOException e)
+       {
+          e.printStackTrace();
+       }
+    }
+    
+    public String getWeekDay() {
+    	SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
+    	Date d = new Date();
+    	String dayOfTheWeek = sdf.format(d);    	
+    	return dayOfTheWeek;
+    }	
+    
+    private void removeLastCharacter(File fileName){
+    	
+    	RandomAccessFile f;
+    	long length;
+    	
+		try {
+			
+			f = new RandomAccessFile(fileName, "rw");
+			length = f.length();
+			long l;
+			
+			if (length>0)
+				 l = length - 1;
+			else 
+				l = length;
+			
+			f.setLength(l);
+			f.close();
+	    	
+		} catch (FileNotFoundException e) {			
+			e.printStackTrace();
+		} catch (IOException e) {			
+			e.printStackTrace();	
+		}	
+    	
+    }
+    
+    public String toLogJSON(String[] java) {     
+        JSONObject tmp = null;
+        try {
+           tmp = new JSONObject();
+           tmp.put("ip",java[1]);
+           tmp.put("fecha",java[2]);            
+           tmp.put("action",java[3]);
+           tmp.put("method",java[4]);
+           tmp.put("pid",java[5]);         
+           
+        } catch(JSONException e){
+        	 e.printStackTrace();
+        }        
+        return tmp.toString();
+    }   
+    
+    private void writeHTMLLog(){    	
+    	File base = new File(app.getSDCARD() + "/httpd/log");
+    	File htmlLog = new File(base + "/log.html");
+        String htmlAppend = generateHTMLLogFiles(new File(app.getSDCARD() + "/httpd/log/files/"));             
+        String find = "<!-- WRITE LINKS FROM LOG FILE -->";  
+        insertStringInFile(base, htmlLog, find, htmlAppend);        
+    }
+        
+    private String generateHTMLLogFiles(File folder){    	    
+    	String links = new String();    	
+    	File file[] = folder.listFiles();    	
+    	for (int i=0; i < file.length; i++){    		    		
+    		String link = "url_href +" + "'/log/files";    		
+    		String fileReanName = removeExtention(file[i].getName());    				 
+    		links += "<a href=\"#\" class=\"btn btn-default btn-lg enabled\" OnClick=\"showLog(" + link + "/" + file[i].getName() + "');\">" + fileReanName + "</a><br>";
+    	}    	
+    	return links;    	
+    }
+
+    /**
+     * insertStringInFile
+     * @param base
+     * @param inFile
+     * @param lineno
+     * @param lineToBeInserted
+     */
+    public void insertStringInFile(File base, File inFile, String lineno, String lineToBeInserted) {
+	
+	     // temp file
+	     File outFile = new File(base + "/$$$$$$$$.tmp");
+	     
+	     // input
+	     FileInputStream fis;
+	     BufferedReader in = null;
+	     
+	     // output         
+		 FileOutputStream fos;
+		 PrintWriter out = null;
+	     
+		 try {
+			
+			fis = new FileInputStream(inFile);
+			in = new BufferedReader
+			         (new InputStreamReader(fis));
+			
+			fos = new FileOutputStream(outFile);
+			out = new PrintWriter(fos);  
+
+		    String thisLine = "";   
+		    	 
+			while ((thisLine = in.readLine()) != null) {
+				if(thisLine.contains(lineno)){ 
+					out.println(lineToBeInserted);
+		 		}	
+				out.println(thisLine);		
+				Log.v(TAG, thisLine);
+			}				
+			out.flush();
+			out.close();
+			in.close();
+			
+		} catch (FileNotFoundException e) {			
+			e.printStackTrace();		
+		} catch (IOException e) {
+			e.printStackTrace();
+		}   
+		 
+		inFile.delete();
+		outFile.renameTo(inFile);
+    } 	
+    
+    
+    public void storeAboutLog(String text)
+    {       
+    	
+    	File logFolder = new File(app.getSDCARD() + "/httpd/media/about" );
+    	if (!logFolder.exists()){
+    		logFolder.mkdir();
+    	}
+    		
+    	String dateFormat = app.getTimeDate("dd_MM_yyyy");
+    	
+    	File logFile = new File(logFolder.toString() + "/" + "About_" + getWeekDay() + "-" + dateFormat + "" + ".txt");
+    	if (!logFile.exists())
+    	{
+          try
+          {
+             logFile.createNewFile();
+          } 
+          catch (IOException e)
+          {   
+             e.printStackTrace();
+          }
+       }
+       try
+       {
+          BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true)); 
+          buf.append(text);
+          buf.newLine();
+          buf.close();
+       }
+       catch (IOException e)
+       {
+          e.printStackTrace();
+       }
+    }
+    
+    public void storeBackupLog(String text)
+    {        	
+    	boolean first = false;
+    	File logFolder = new File(app.getSDCARD() + "/httpd/backup/log" );
+    	if (!logFolder.exists())
+    	{
+    		logFolder.mkdir();
+    	}    		
+    	String dateFormat = app.getTimeDate("dd_MM_yyyy");
+    	//File logFile = new File(logFolder.toString()+ "/" + getWeekDay() + "_" + dateFormat + "" + ".json");
+    	File logFile = new File(logFolder + "/backup_log.json");
+    	if (!logFile.exists()){
+    		
+    		try
+    		{
+    			logFile.createNewFile();             
+    			//writeHTMLLog();
+    			first=true;
+    		} 
+    		catch (IOException e)
+    		{            
+    			e.printStackTrace();
+    		}
+    		
+    	} else {    	   
+    	
+    		removeLastCharacter(logFile);    	   
+    	}
+    	
+       try
+       {          
+          BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));         
+          String[] data = text.split("\\^");
+          String dataJson = toBuckupLogJSON(data);
+          String d = null;
+          if (first){
+        	  d = "[" + dataJson + "]";
+          } else {
+        	  d = ","  + dataJson + "]";
+          }  
+          String formatted = new String(d.getBytes("ISO-8859-1"), "UTF-8");
+          buf.append(d);          
+          buf.close();
+       }
+       catch (IOException e)
+       {
+          e.printStackTrace();
+       }
+    }
+    
+    
+	public String toBuckupLogJSON(String[] java) {      
+	    	
+			JSONObject tmp = null;        
+	    	
+	    	try {
+	           
+	    	   tmp = new JSONObject();
+	           tmp.put("fecha",java[0]);
+	           tmp.put("tipo",java[1]);            
+	           
+	           String url = "<a href='"+ java[3] +"'>" + java[2] + "</a>";           
+	           tmp.put("archivo", url);
+	           
+	           String comment;           
+	           if (java.length == 4)
+	        	   comment = "N/A";
+	           else
+	        	   comment = java[4];	
+	           
+	           tmp.put("comentario",comment);
+	           
+	        } catch(JSONException e){
+	        	 e.printStackTrace();
+	        }    	
+	        return tmp.toString();
+	    }    
+	}

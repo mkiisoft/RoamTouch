@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+
+    <!-- Scripts -->  
+    <script src="js/jquery-1.8.3.min.js"></script>    
+    <script src="js/functions.js">
+		$(document).ready(function(){
+			console.log("levanta");
+		});
+	</script>
+	<script src="bootstrap/js/bootstrap.min.js"></script>
+    
+
+    <script type="text/javascript">
+
+    $(document).ready(function(){
+	
+		$('#password').keyup(function (event) {
+			   if (event.keyCode == 13 ) {
+				  $("#login_submit").click();
+			  }
+		});        
+
+        $('#login_submit').click(function(){
+
+            var username = $('#username').val();
+            var password = $('#password').val();            
+
+            $.ajax({
+                type: 'POST',       
+                url: url_href, 
+                data: {             
+                'username': username,
+                'password': password,          
+                'action': CHECK_USER
+                },
+                success: function(data){
+
+                    if( !($.isEmptyObject(data)) ){
+
+                        console.log(data);
+
+                        var username    = data[0].username;
+                        var email       = data[0].email;
+                        var first_name  = data[0].first_name;
+                        var last_name   = data[0].last_name;
+                        var status      = data[0].status;
+                        var profile_id  = data[0].profile_id;
+                        var profile     = data[0].description;
+
+                        window.location.href = url_href + '/info.html';
+
+                    }else{
+
+                        console.log("Usuario o password incorrecto");
+
+                        $('#message').append("<div class='alert alert-error' id='alert_message' style='font-size: 12px;'><button type='button' class='close' data-dismiss='alert'>x</button>Usuario o contraseña incorrectos.</div>");
+
+                        $('#message').fadeOut(4000, function() {
+                            $('#alert_message').remove();
+                            $('#message').show();
+                        });
+
+                    }                             
+                                  
+                }         
+            });
+
+               
+
+        });
+
+    }); 
+
+    </script>
+
+  </head>
+  
+  <body>
+
+      <!-- Nav Menu: start -->
+      <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+          <div class="container">
+              <ul class="nav">
+                  <li class="active">
+                    <a class="brand" href="#" id="brand">CartaMaestraWeb</a>
+                  </li>                  
+              </ul>              
+          </div>
+        </div>
+      </div>  
+      <!-- Nav Menu: end -->
+
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+
+          <!-- row-fluid: start -->
+          <div class="row-fluid">
+
+              <!-- content: srtat -->
+              <div id="content">
+                <div class="span3 offset4">
+                
+                <form class="well" accept-charset="utf-8">
+                  <fieldset>
+                    <legend>CartaMaestra</legend>                    
+                    <div class="controls">
+
+                        <div id="message"></div>
+
+                        <div class="input-prepend">
+                              <span class="add-on"><i class="icon-user"></i></span><input name="username" id="username" type="text" placeholder="Username" autofocus="autofocus">
+                          </div>
+                        </div>  
+                        <br/>
+                        <div class="controls">
+                          <div class="input-prepend">
+                              <span class="add-on"><i class="icon-lock"></i></span><input name="password" id="password" type="password" placeholder="Contraseña">
+                          </div>
+                        </div>                                    
+                        
+                      </label>        
+                    <input class="btn btn-primary" type="button" value="Ingresar" id="login_submit"/>
+                  </fieldset>   
+                </form>
+              </div>
+
+              </div>
+              <!-- content: end --> 
+
+          </div>
+          <!-- row-fluid: end -->   
+      </div>
+      <!-- container-fluid: end -->          
+  </body>
+</html>

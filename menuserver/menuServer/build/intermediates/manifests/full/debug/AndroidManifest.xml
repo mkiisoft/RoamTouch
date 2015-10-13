@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.roamtouch.menuserver"
+    android:versionCode="2"
+    android:versionName="1.4" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="15" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <application
+        android:name="com.roamtouch.menuserver.MenuServerApplication"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Sherlock" >
+        <activity
+            android:name="com.roamtouch.menuserver.Splash"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/title_activity_carta_maestra"
+            android:screenOrientation="landscape"
+            android:theme="@style/SplashTheme" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.roamtouch.menuserver.LoginActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/title_activity_carta_maestra"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Sherlock" >
+            <intent-filter>
+                <action android:name="com.roamtouch.menuserver.LOGIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.roamtouch.menuserver.admin.AdminActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/title_activity_carta_maestra"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Sherlock" >
+            <intent-filter>
+                <action android:name="com.roamtouch.menuserver.ADMIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <service android:name="com.roamtouch.menuserver.MenuServer" />
+
+        <!--
+        <provider
+    		android:authorities="com.roamtouch.menuserver.communications.APIProvider"
+    		android:multiprocess="true"
+    		android:name="com.roamtouch.menuserver.communications.APIProvider">           
+        </provider>
+        -->
+
+        <receiver
+            android:name="com.roamtouch.menuserver.admin.WaiterTableView.TableBroadcastReceiver"
+            android:enabled="true" >
+            <intent-filter>
+                <action android:name="com.roamtouch.menuserver.admin.WaiterTableView.TableBroadcastReceiver.BLINK_TABLE" >
+                </action>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.roamtouch.menuserver.admin.AdminActivity.AlarmReceiver"
+            android:process=":remote" />
+    </application>
+
+</manifest>

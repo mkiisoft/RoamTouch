@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+	
+    <!-- Scripts -->  
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>    
+    <script src="../js/functions.js"></script>  
+  	<script src="../js/deployJava.js"></script>   	  
+  	<script src="../js/jssc-bridge.js"></script>
+    
+    <script type="text/javascript">	
+	
+	var option_name = 'printer';
+	
+	var baudrate;
+	var databits;
+	var stopbits;
+	var parity;
+
+    function get_printer_settings(){       
+
+        $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: { 
+                'option_name': option_name,
+                'action': GET_OPTIONS_BY_NAME
+              },
+              beforeSend: function(){
+                  $('#loading').toggleClass('off');
+              },
+              success: function(data){
+
+                  $('#loading').toggleClass('off');                  
+
+                  if( !($.isEmptyObject(data)) ){
+                    
+                      $('#table_printer_settings').html("<thead>"+
+                          "<th>Opción</th>"+
+                          "<th>Valor</th>"+
+                          "<th colspan='2'></th>"+
+                          "</thead>"+
+                          "<tbody>"+
+                          "<body>"+
+                          "</tbody>");
+
+                      for (var i=0, len=data.length; i < len; i++) {
+                          
+                          $('#table_printer_settings > tbody').append(
+                                "<tr class="+ data[i]._id +">"+
+                                  "<td class='printer_settings_name'>"+ data[i].option_name +"</td>"+
+                                  "<td class='printer_settings_value'>"+ data[i].option_value +"</td>"+
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='edit_printer_setting("+ data[i]._id +")'><i class='icon-edit'></i>Editar</a>"+
+                                  "</td>"+                                  
+                                "</tr>");   
+                      }
+                  }
+              },
+              complete: function(){    
+                  $('.scroll_table_printer_settings').show();  
+                  $('#test_port_button').show();
+
+              }
+          });   
+
+    }
+
+    function edit_printer_setting(option_id){
+
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: {             
+            'option_id': option_id,         
+            'action': GET_OPTION_BY_ID
+            },
+            success: function(data){                 
+                $('.scroll_table_printer_settings').hide();        
+                $('#edit_printer_settings_form').show();
+
+                $('#test_port_button').hide();                
+            
+                $('#option_id').val(data[0]._id); 
+                $('#edit_option_name').val(data[0].option_name); 
+                $('#edit_option_value').val(data[0].option_value); 
+
+            }         
+        });           
+
+    }
+
+    function get_port_names(){
+        var ports = jSSC.getPortNames();
+        var returnArray = new Array(ports.length);
+        
+        for(var i = 0; i < ports.length; i++){
+            returnArray[i] = {'id': i, 'port': ports[i]}
+
+            $('#ports').append("<option value"+ports[i]+">"+ ports[i] +"</option>");
+
+        }
+        
+        console.log(returnArray);
+    }
+
+    		
+	$(document).ready(function(){
+
+      get_loading_image();
+		
+			jSSC.onInit = function() {
+					console.log("jSSC inited");
+					
+			}
+				
+			jSSC.init();
+
+      get_printer_settings();
+
+      get_port_names();
+
+      $('#test_port_button').click(function(){
+
+          $('.scroll_table_printer_settings').hide();
+          $('#test_ports_form').show();
+
+      });		
+			
+      $('#test_port').click(function(){
+
+            var port = $('#ports').find(":selected").val(); 
+            var test_string = $('#test_string').val();
+			var option_name = 'printer';
+			
+            $.ajax({
+                  type: 'POST',       
+                  url: url_href, 
+                  data: { 
+                    'option_name': option_name,
+                    'action': GET_OPTIONS_BY_NAME
+                  },
+                  beforeSend: function(){
+                      //$('#loading').toggleClass('off');
+                  },
+                  success: function(data){
+
+                      //$('#loading').toggleClass('off');                  
+
+                      if( !($.isEmptyObject(data)) ){
+
+                          for (var i=0, len=data.length; i < len; i++) {                          
+                              
+                              option_name = data[i].option_name;
+
+                              switch(option_name){
+
+                                    case 'printer_baudrate': baudrate = data[i].option_value; break;
+                                    case 'printer_databits': databits = data[i].option_value; break;
+                                    case 'printer_stopbits': stopbits = data[i].option_value; break;
+                                    case 'printer_parity':   parity   = data[i].option_value; break;
+
+                              }
+
+                          }
+                      }
+                  },
+                  complete: function(){    
+                      
+                      serialPort = new jSSC.SerialPort(port);
+                      var ser =serialPort.openPort();
+                      var ver = serialPort.setParams(baudrate, databits, stopbits, parity);
+                      serialPort.writeString(test_string + "\n");
+                      serialPort.closePort();
+
+                  }
+            });   
+
+      });
+
+     
+      $('#edit_printer_settings_submit').click(function(){
+		  
+          var option_id = $('#option_id').val();
+		  var option_name = $('#edit_option_name').val();	
+          var option_value = $('#edit_option_value').val();
+
+           $.ajax({
+                  type: 'POST',       
+                  url: url_href, 
+                  data: {                        
+                  'option_id': option_id,     
+				  'option_name': option_name, 	 
+                  'option_value': option_value,                           
+                  'action': UPDATE_OPTION
+                  },
+                  success: function(data){
+                      $('#edit_printer_settings_form').hide();
+                      $('#option_id').val('');
+
+                      $('#test_port_button').show();
+
+                      $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>La opción se actualiz&oacute; con &eacute;xito!</div>");
+                      
+                      get_printer_settings();                      
+
+                      $('#message').fadeOut(4000, function() {
+                          $('#alert_message').remove();
+                          $('#message').show();
+                      });
+                  }
+              }); 
+
+      });
+
+	});	
+    
+    </script>
+	
+  </head>
+  
+  <body>
+	  <div id="jssc_init"></div>
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+	  
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+          <!-- row-fluid: start -->
+          <div class="row-fluid">
+
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+            
+              <!-- content: start -->
+              <div id="content" class="span9" style="display:none;">
+
+                <div id="message"></div>      
+
+                <div>
+                  <button type="button" id="test_port_button" class="btn btn-success" style="margin-top: 10px; display:none;">Probar Puerto</button> 
+                </div>    
+
+                <div class="scroll_table_printer_settings">
+
+                    <div id="loading" class="off"><img src="#" id="loading_img"/><p style="font-weight: bold;">cargando...</p></div>
+
+                    <table class="table table-hover" id="table_printer_settings">                
+                    </table> 
+
+                </div>
+
+                <form class="form-horizontal" id="edit_printer_settings_form" style="display:none;">
+
+                    <input type="hidden" id="option_id" value="">
+
+                    <div class="control-group">
+                      <label class="control-label">Opción:</label>                    
+                      <div class="controls">
+                          <input type="text" class="span3" id="edit_option_name" name="edit_option_name" disabled="disabled"/>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <label class="control-label">Valor:</label>                    
+                      <div class="controls">
+                          <input type="text" class="span3" id="edit_option_value" name="edit_option_value" />
+                      </div>
+                    </div>
+
+                    <div class="form-actions">
+                      <button type="button" id="edit_printer_settings_submit" class="btn btn-primary">Aceptar</button>
+                      <button class="btn">Cancelar</button>
+                    </div>
+
+                </form>
+
+                <form class="form-horizontal" id="test_ports_form" style="display:none;">
+                    <legend>Configuración de Puertos de Impresión</legend> 
+
+                        <div class="control-group">
+                          <label class="control-label">Texto de Prueba:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span3" id="test_string" name="test_string" />
+                          </div>
+                        </div> 
+
+                        <div class="control-group">							
+                          <label class="control-label">Puerto:</label>                    
+                          <div class="controls">
+                              <select class="span2" id="ports">
+                              </select>
+                          </div>  						  						  
+                        </div>
+
+                        <div class="form-actions">
+						              <!--<button type="button" id="list_ports" class="btn btn-primary">Listar Puertos</button>-->
+                          <button type="button" id="test_port" class="btn btn-primary">Probar Puerto</button>                          
+                        </div>   
+                </form>
+                  
+              </div>    
+              <!-- content: end -->
+
+          </div> 
+          <!-- row-fluid: end --> 
+      </div>
+      <!-- container-fluid: end -->
+      
+  </body>
+</html>

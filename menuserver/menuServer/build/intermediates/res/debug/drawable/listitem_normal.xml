@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+ 
+    <gradient
+        android:startColor="@color/color_selector_normal"
+        android:endColor="@color/color_selector_normal"
+        android:angle="90" />
+ 
+</shape><!-- From: file:/C:/Users/maria/Documents/RoamTouch/menuserver/AStudio/restomatic/menuserver/menuServer/src/main/res/drawable/listitem_normal.xml -->

@@ -1,0 +1,13 @@
+<resources>
+
+    <string name="app_name">MenuServer</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_carta_maestra">CartaMaestra</string>
+	<string name="local_service_started"> </string>
+	<string name="local_service_stopped"> </string>
+	<string name="local_service_label">CartaMaestra</string>
+	<string name="local_service_connected"> Servicio de CartaMaestra corriendo</string>
+	<string name="local_service_disconnected"> Servicio de CartaMaestra detenido</string>
+	
+</resources>

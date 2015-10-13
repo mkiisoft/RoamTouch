@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-http-client-jackson2-1.20.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="2408070b2abec043624d35b35e30450f1b663858">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-http-client-jackson2-1.20.0-fa7117f5a1de6bf3c7121af1d3d02367fb4e5d10.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-api-client-1.20.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="d3e66209ae9e749b2d6833761e7885f60f285564">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-api-client-1.20.0-83e6d73a09ac75886f98450a1a85e8268bc608b0.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\.gradle\caches\modules-2\files-2.1\com.google.guava\guava\13.0.1\d6f22b1e60a2f1ef99e22c9f5fde270b2088365\guava-13.0.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="0d6f22b1e60a2f1ef99e22c9f5fde270b2088365">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\guava-13.0.1-6dc9247a0ba570be94bb81f42a3b0f13a0501292.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-api-client-jackson2-1.20.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="6b3938faf1304c5ec889171e710b266ab829c629">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-api-client-jackson2-1.20.0-fa3cebfd03acd5dd9a193e91ab12af565aaac96d.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\dnsjava-2.1.6.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="2c80302163621952b71657c623d1b0a8985c6bcb">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\dnsjava-2.1.6-84320e6831e177f594a5f76cb18792749d6c458d.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\gdata-spreadsheet-meta-3.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="d896235e9bca63acd6e00380165e878bb7b9df80">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\gdata-spreadsheet-meta-3.0-d049a5468288df35e34d68bbc2d3ec5831a7e39b.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\opencsv-1.7.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="700dd9c8cf4753214384f1f26c976948ddcca5e8">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\opencsv-1.7-bd781e6420c4da0c9e1de721fad44266f7b8640f.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-api-client-java6-1.20.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="89fde4f148626eec5a4edc2f9b469b3f64fc4b17">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-api-client-java6-1.20.0-8ce15c243b09b80940061c7710647f06713bda3d.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\jackson-core-2.1.3.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="f6c3aed1cdfa21b5c1737c915186ea93a95a58bd">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\jackson-core-2.1.3-64eba2213be8ef502ce6812bce36c27b83865837.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-http-client-1.20.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="93d82db2bca534960253f43424b2ba9d7638b4d2">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-http-client-1.20.0-531aee52881664f5f77dd183c0aada1154ba3a8c.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-http-client-android-1.20.0-sources.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="3d6d80df33fef3951bc60377e7a836cabe7b9662">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-http-client-android-1.20.0-sources-156c91888d880d9d25108ce69a611526d5cf284a.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-v4\19.1.0\support-v4-19.1.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\support-v4-19.1.0-6bdae22f9a7a1ad4e6eb14df48ce47699d6e1186.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-api-client-extensions-android2-1.4.1-beta.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="1d4dc2ec312e4416a171f1637696f75539e2815c">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-api-client-extensions-android2-1.4.1-beta-f9cc33c6f827de5847fb2628807af931af716be6.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\exploded-aar\com.actionbarsherlock\actionbarsherlock\4.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="af64527b748983a75de9c0756e9768b56b240a49">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\classes-cf8f001699dd46c6b8aafb6a11c7b488023dd21c.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\exploded-aar\menuserver\viewPageIndicatorLibrary\unspecified\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="2fa705a463d66220eb72f74f581c01308585f7e0">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\classes-804823ba42d566c75bfe173d728e8eec6c812553.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-oauth-client-1.20.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="1d086ac5756475ddf451af2e2df6e288d18608ca">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-oauth-client-1.20.0-dfc49871fb6f3b44d633738b66e17f8b6c0ebc30.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\gdata-core-1.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="6ff0dba2ad4e59fdda638b00d6773f3e48b61e16">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\gdata-core-1.0-2191614d8330f5aabbb7b036a2ca77e972b44603.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-api-client-android-1.20.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="05673179575c32b69a474334255c3044adf18d40">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-api-client-android-1.20.0-b20283b2d0cfb7f4c4b82c83332e1f15d7e320e7.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\gdata-client-meta-1.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="b72907f7afdc175df85c13c90808a80b17333894">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\gdata-client-meta-1.0-231a140136940f3dd3d400abef4285760f2ef486.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\gdata-client-1.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="b8dabe89dcae1a48a5bd16e899b19053193c52cc">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\gdata-client-1.0-dbc4e2f83ac17ef6ef4633a27e071c645305e807.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\gdata-spreadsheet-3.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="8c6cdc5aa2ff9e7b6a3ab9bbfaaa23538caff4a6">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\gdata-spreadsheet-3.0-cb14307528f077e1c85e3838fad7d526990a64bc.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-api-client-extensions-1.4.1-beta.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="ad90a4cb9d609584fb6e0335169b13b05f3b92ae">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-api-client-extensions-1.4.1-beta-561387cb96b132eec991f21bf4374bbfc2226c7c.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\jxl.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="7faf62e0697f7a88954622dfe8c8de33ed142ac7">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\jxl-5797e86599f2e735893fa3c0e7dcbebc6d96a146.jar" />
+    </item>
+    <item
+        jar="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\libs\google-http-client-jackson-1.20.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="843dd7d334a7bcc2b1d12f7b6d61594bab09d489">
+        <dex dex="C:\Users\maria\Documents\RoamTouch\menuserver\AStudio\restomatic\menuserver\menuServer\build\intermediates\pre-dexed\debug\google-http-client-jackson-1.20.0-30bdbacea9ed60b1dbeae5bf0ffb94bd7e04c7bb.jar" />
+    </item>
+
+</items>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+    <!-- Scripts -->  
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>    
+    <script src="../js/functions.js"></script>
+
+    <!-- scripts files in order to print -->
+    <script src="../js/deployJava.js"></script>       
+    <script src="../js/jssc-bridge.js"></script>
+	<script src="../js/jna-automation.js"></script>
+    
+    <script type="text/javascript">
+	
+	  /* Funcion para modificar le color de la fila en base al estado de la orden */
+    function get_color_status( order_status_id ){ 
+          /* Obtengo el estado del pedido */
+          switch ( order_status_id ){
+                /* Pedido enviado */
+                case 1: $('#table_orders > tbody > tr:last').addClass('success');
+                        break;
+                /* Pedido cancelado */
+                case 2: $('#table_orders > tbody > tr:last').addClass('info');
+                        break;
+                /* Pedido imprimir */
+                case 3: $('#table_orders > tbody > tr:last').addClass('warning');
+						            
+                        //var ticket = "Item: " + data.description + "\n Total:" + data.total;								
+                        break;
+
+                /* Pedido impreso */
+                case 4: $('#table_orders > tbody > tr:last').addClass('error');
+                        break; 
+                default: 
+                        break; 
+          }
+    }
+
+    /* Funcion para obtener los pedidos existentes */
+    function get_orders(){
+        $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: { 
+                'action': GET_ORDERS
+              },
+              beforeSend: function(){
+                  $('#loading').toggleClass('off');
+              },
+              success: function(data){
+
+                  $('#loading').toggleClass('off');   
+
+                  //alert(data);
+                  if( !($.isEmptyObject(data)) ){
+                    
+                      $('#table_orders').html("<thead>"+
+                          "<th>Mesa</th>"+                          
+                          //"<th>Observacion</th>"+						              
+                          "<th>Estado</th>"+
+                          "<th>Total</th>"+
+                          //"<th>Imprimir</th>"+
+                          "</thead>"+
+                          "<tbody>"+
+                          "<body>"+
+                          "</tbody>");
+
+                      for (var i=0, len=data.length; i < len; i++) {
+
+                          var print_order_class = "print_order " + data[i]._id;
+
+                          var order_status = data[i].order_status_id;
+
+                          /* Si el estado es imprimir, agrego boton */
+                          if( order_status == 4 ){
+
+                              $('#table_orders > tbody').append(
+                                "<tr class="+ data[i]._id +">"+
+                                  "<td class='dining_table_id'>"+ data[i].dining_table_id +"</td>"+
+                                  //"<td class='observation'>"+ data[i].observation +"</td>"+                     
+                                  "</td>"+
+                                  "<td class='status'>"+ data[i].description +"</td>"+
+                                  "<td class='total'>$"+ data[i].total +"</td>"+                                  
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='print_ticket_order("+ data[i]._id +",1)'><i class='icon-print'></i>Imprimir</a>"+
+                                  "</td>"+                                  
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='get_order_detail("+ data[i]._id +")'><i class='icon-th-list'></i>Detalle</a>"+
+                                  "</td>"+
+                                  /*"<td>"+
+                                    "<a href='javascript:;' onclick='edit_order("+ data[i]._id +")'><i class='icon-edit'></i>Editar</a>"+
+                                  "</td>"+*/
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='delete_order("+ data[i]._id +")'><i class='icon-remove-circle'></i>Eliminar</a>"+
+                                  "</td>"+
+                                "</tr>");                        
+
+
+                          }else{
+
+                               $('#table_orders > tbody').append(
+                                "<tr class="+ data[i]._id +">"+
+                                  "<td class='dining_table_id'>"+ data[i].dining_table_id +"</td>"+
+                                  //"<td class='observation'>"+ data[i].observation +"</td>"+                     
+                                  "</td>"+
+                                  "<td class='status'>"+ data[i].description +"</td>"+
+                                  "<td class='total'>$"+ data[i].total +"</td>"+                                  
+                                  "<td>"+
+                                    /*"<a href='javascript:;' onclick='print_ticket_order("+ data[i]._id +",1)'><i class='icon-print'></i>Imprimir</a>"+*/
+                                  "</td>"+                                  
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='get_order_detail("+ data[i]._id +")'><i class='icon-th-list'></i>Detalle</a>"+
+                                  "</td>"+
+                                  /*"<td>"+
+                                    "<a href='javascript:;' onclick='edit_order("+ data[i]._id +")'><i class='icon-edit'></i>Editar</a>"+
+                                  "</td>"+*/
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='delete_order("+ data[i]._id +")'><i class='icon-remove-circle'></i>Eliminar</a>"+
+                                  "</td>"+
+                                "</tr>");                        
+
+
+                          }
+
+                         
+                          get_color_status( data[i].order_status_id, data );                            
+                      }
+                  }
+              }
+          });   
+    }  
+
+    /* Funcion para obtener los pedidos existentes */
+    function get_order_detail(order_id){
+        $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: {
+                'order_id' : order_id, 
+                'action': GET_ORDER_DETAIL
+              },
+              beforeSend: function(){
+                  //alert('cargando');
+              },
+              success: function(data){      
+
+                  if( !($.isEmptyObject(data)) ){
+
+                      $('#table_order_detail').html("<thead>"+
+						  "<th>Codigo</th>"+ 
+                          "<th>Menu Item</th>"+ 
+                          "<th>Agregados</th>"+                         
+                          "<th>Cantidad</th>"+                          
+                          "<th>Precio</th>"+
+                          "<th>Subtotal</th>"+
+						              "<th>Estado</th>"+
+                          "</thead>"+
+                          "<tbody>"+
+                          "<body>"+
+                          "</tbody>");
+
+                      for (var i=0, len=data.length; i < len; i++) {
+
+                          if( data[i].addon_id == 0){
+                              var addons = 'Ninguno';  
+                          }else{
+                            var addons = data[i].addon_description;
+                          }                          
+
+                          $('#table_order_detail > tbody').append(
+                                "<tr class="+ data[i]._id +">"+
+								  "<td class='code'>"+ data[i].code +"</td>"+
+                                  "<td class='menu_item_name'>"+ data[i].menu_item_name +"</td>"+
+                                  "<td class='addons'>"+ addons +"</td>"+
+                                  "<td class='quantity'>"+ data[i].quantity +"</td>"+
+                                  "<td class='price'>$"+ data[i].price +"</td>"+
+                                  "<td class='subtotal'>$"+ data[i].subtotal +"</td>"+  
+								                  "<td class='order_detail_status'>"+ data[i].order_detail_status_description +"</td>"+
+                                  /*"<td>"+
+                                    "<a href='javascript:;' onclick='edit_menu_item("+ data[i].menu_item_id +")'><i class='icon-edit'></i>Editar</a>"+
+                                  "</td>"+*/
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='delete_order_detail("+ data[i]._id +", "+order_id+")'><i class='icon-remove-circle'></i>Eliminar</a>"+
+                                  "</td>"+
+                                "</tr>");                                                      
+                      }
+                  }
+              }
+          });   
+    }  
+
+    /* Funcion para eliminar un pedido */
+    function delete_order(order_id){
+
+      if ( confirm("¿Está seguro de eliminar la Orden?") ) {
+
+          $('#table_orders > tbody > tr.' + order_id).remove();        
+
+          $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: {             
+              'order_id': order_id,         
+              'action': DELETE_ORDER
+              },
+              success: function(data){
+                  $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El pedido se elimin&oacute; con &eacute;xito!</div>");
+
+                  get_orders();
+          
+                  $('#message').fadeOut(4000, function() {
+                      $('#alert_message').remove();
+                      $('#message').css('display','block');
+                  });
+              }         
+          });  
+      }
+    } 
+
+    /* Funcion para eliminar un pedido */
+    function delete_order_detail(order_detail_id, order_id){
+
+      if ( confirm("¿Está seguro de eliminar el item de la orden?") ) {
+
+          $('#table_order_detail > tbody > tr.' + order_detail_id).remove();        
+
+          $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: {             
+              'order_detail_id': order_detail_id,         
+              'action': DELETE_ORDER_DETAIL
+              },
+              success: function(data){
+                  $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El pedido se elimin&oacute; con &eacute;xito!</div>");
+
+                  get_order_detail( order_id );
+          
+                  $('#message').fadeOut(4000, function() {
+                      $('#alert_message').remove();
+                      $('#message').css('display','block');
+                  });
+              }         
+          });  
+      }
+    } 
+
+    function get_order_detail_to_print( order_id, dining_table_id, order_status, total_order, order_created_at ){
+
+          var string;
+
+          $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: {
+                'order_id' : order_id, 
+                'action': GET_ORDER_DETAIL
+              },
+              beforeSend: function(){
+                  //alert('cargando');
+              },
+              success: function(data){      
+
+                  var ticketFinal = "";
+                  var tab = "      ";
+
+                  ticketFinal += tab + "************************" + "\n" ;
+                  ticketFinal += tab + " -- MESA " + dining_table_id + "  -- Mozo: Juan Perez" + "\n";
+                  ticketFinal += tab + "------------------------" + "\n";
+
+                  if( !($.isEmptyObject(data)) ){
+                    
+                      for (var i=0, len=data.length; i < len; i++) {
+
+						  var order_detail_id = data[i]._id; 
+						  var code = data[i].code;
+                          var menu_item_name = data[i].menu_item_name;
+                          var quantity = data[i].quantity;
+                          var price = data[i].price;
+                          var subtotal = data[i].subtotal;
+
+                          ticketFinal += tab + menu_item_name + "........." + "$" + price + "--" + "\n";
+                          //ticketFinal += tab + "------------------------" + "\n";
+
+                          // Actualizo estado de impresion del detalle de la orden
+                          update_printed_order_detail( order_detail_id );  
+
+                      }
+                      
+                      ticketFinal += tab + "" + "TOTAL" + "........." + "$" + total_order + "\n";
+                      ticketFinal += tab + "------------------------" + "\n";
+                      ticketFinal += tab + "************************" + "\n"; 
+
+                      // Actualizo estado de impresion de la orden 
+                      update_printed_order( order_id );    
+
+                      // Imprimmo
+                      print_order( 'COM23', ticketFinal );
+
+                  }
+              }
+          });   
+
+    }
+
+    /* Funcion para imprimir una orden o una order_detail */
+    function print_order( port, string ){
+
+        serialPort = new jSSC.SerialPort( port );
+        serialPort.openPort();
+        var ver = serialPort.setParams(38400, 8, 1, 0);
+        serialPort.writeString( string );
+        serialPort.closePort();
+
+    }
+
+    function update_printed_order( order_id ){
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: {             
+            'order_id': order_id,         
+            'action': UPDATE_PRINTED_ORDER 
+            },
+            success: function(data){
+                  
+                console.log('Se actualizó la orden');
+                
+            }         
+        });
+    }
+
+    function update_printed_order_detail( order_detail_id ){
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: {             
+            'order_detail_id': order_detail_id,         
+            'action': UPDATE_PRINTED_ORDER_DETAIL 
+            },
+            success: function(data){
+                  
+                console.log('Se actualizó el estado de impresion del detalle de la orden');
+                
+            }         
+        });
+    }
+
+    function get_not_printed_order_details( order_id, dining_table_id ){
+
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: {             
+            'order_id': order_id,         
+            'action': GET_NOT_PRINTED_ORDER_DETAILS 
+            },
+            success: function(data){
+              
+              var ticketComanda = "";
+              tab = "      ";
+
+              ticketComanda += tab + "************************" + "\n" ;
+              ticketComanda += tab + " -- MESA " + dining_table_id + "  -- Mozo: Juan Perez" + "\n";
+              ticketComanda += tab + "------------------------" + "\n";
+                  
+
+              for (var i=0, len=data.length; i < len; i++){
+
+				  var code = data[i].code;
+                  var menu_item_name = data[i].menu_item_name;
+                  var quantity = data[i].quantity;                  
+                  var created_at = data[i].created_at;                  
+
+                  if( data[i].addon_id == 0){
+                      var addons = '';  
+                  }else{
+                      var addons =  tab + " -- " + quantity + " " + data[i].addon_description;
+                  } 
+
+                  if( addons != 0 ){
+                                       
+				    ticketComanda += tab + " -- Codigo:" + code + " --" + "\n";
+                    ticketComanda += tab + " -- " + menu_item_name + " --" + "\n";
+					ticketComanda += tab + addons + "\n";                    
+                    //ticketComanda += tab + " -- " + addons + " --" + "\n";                    
+                    //ticketComanda += tab + " -- " + quantity + " --" + "\n";
+                    ticketComanda += tab + "------------------------" + "\n";
+
+                  }else{                    
+
+                    ticketComanda += tab + " -- " + quantity + "  " + menu_item_name + " --" + "\n";
+                    //ticketComanda += tab + " -- " + quantity + " --" + "\n";
+                    ticketComanda += tab + "------------------------" + "\n";
+                    
+                  }
+                  
+                  // Actualizo estado de impresion 
+                  update_printed_order_detail( data[i]._id );                   
+
+              }
+
+              ticketComanda += tab + "------------------------" + "\n";
+              ticketComanda += tab + "************************" + "\n";
+			  
+			  ticketComanda += tab  + "\n \n \n \n \n \n \n";
+
+              // Imprimo 
+              print_order( 'COM23', ticketComanda );
+            }         
+        });  
+    }   
+
+    function print_ticket_order( order_id, comanda ){
+
+        //$("#table_orders > tbody > tr." + order_id + "> td:eq(3)").addClass('jpm');
+
+        /* Si es una comanda */
+        if( comanda == 0 ){
+            $.ajax({
+                type: 'POST',       
+                url: url_href, 
+                data: {             
+                'order_id': order_id,         
+                'action': GET_ORDER_BY_ID 
+                },
+                success: function(data){
+                    
+                  for (var i=0, len=data.length; i < len; i++){				  
+					  
+                      var dining_table_id = data[i].dining_table_id;
+                      
+                      get_not_printed_order_details( order_id, dining_table_id );
+
+                  }
+                }         
+            });
+        }
+        /* Si es el ticket final */
+        else if( comanda == 1 ){
+
+            var order_string;
+
+            $.ajax({
+                type: 'POST',       
+                url: url_href, 
+                data: {             
+                'order_id': order_id,         
+                'action': GET_ORDER_BY_ID 
+                },
+                success: function(data){
+
+                  console.log( data );
+                  
+                  for (var i=0, len=data.length; i < len; i++){         
+
+                      var dining_table_id = data[0].dining_table_id;
+                      var order_status = data[0].description;
+                      var total_order = data[0].total;
+                      var order_created_at = data[0].created_at;            
+
+                  }           
+
+                  get_order_detail_to_print( order_id, dining_table_id, order_status, total_order, order_created_at );
+                  
+                }         
+            });
+        }
+
+    }   
+
+    function refresh_page(){
+        location.reload(true);
+    }
+        
+    $(document).ready(function(){      	
+		
+		// Printing Applet	
+        jSSC.onInit = function() {
+    		console.log("jSSC inited");
+    	}		
+
+        jSSC.init();		
+		
+        get_loading_image();
+		
+		    /* Obtengo los pedidos existentes al cargar la pagina*/
+        get_orders();  	
+		
+        /* Recibo el mensaje por websocket */
+        connection.onmessage = function( event ){   
+		
+    			  //alert( event.data );
+    			
+            var message = $.parseJSON( event.data );
+    			
+    			  var message_action = message[0].action;
+    			  var message_order_id = message[0].order_id;
+    			
+      			console.log( message_action );
+      			console.log( message_order_id );
+    			
+            switch( message_action ){
+              
+              /* Dining Table Closed */
+              case SEND_COMMAND_PRINT_ORDER: 
+                      console.log( 'Dining table closed' );					            
+					  get_orders();	                      
+					  //refresh_page();	  
+                      break;
+
+              /* Print order detail */
+              case SEND_COMMAND_PRINT_ORDER_ITEM:
+                    console.log('Imprimir comanda');                                        
+                    // Imprimo comanda                        
+                    print_ticket_order( message_order_id, 0);
+					get_orders();
+					//refresh_page();                      
+                    break;
+
+              /* Dining Table Opened */
+              case SEND_COMMAND_DINING_TABLE_OPENED:
+                    console.log( 'Dining table opened' );
+					get_orders();
+                    //refresh_page();
+                    break;
+
+            }
+
+        }
+
+        /*$('#test').click(function(){
+              $('.print_order.1').append("<a href='javascript:;' onclick='print_ticket_order(1)'>Imprimir</a>");    
+        });*/
+		
+		$( "#automatizar" ).click(function() {
+		
+			//Automation Applet.
+			jNA.onInit = function() {
+				console.log("jNA inited");
+				jNA.setWindowsFocus("Sin título"); 		  
+			}		
+
+			jNA.init();
+
+		});
+		
+    });    
+    
+    </script>
+
+  </head>
+  
+  <body>
+      <!-- Java Applet -->
+      <div id="jssc_init"></div>
+
+	  <!-- Java Applet -->
+      <div id="jna_automation"></div>
+	  
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+        <!-- row-fluid: start -->
+        <div class="row-fluid">
+
+            <!-- sidebar menu -->
+            <div id="sidebar_menu"></div>
+            
+            <!-- content: start -->
+            <div id="content" class="span9" style="display:none;">      
+
+                <div id="loading" class="off"><img src="#" id="loading_img"/><p style="font-weight: bold;">cargando...</p></div>  
+
+                <table class="table table-hover" id="table_orders"> 
+                </table>
+
+                <table class="table table-hover" id="table_order_detail">                
+                </table>      
+
+                <div id="message"></div>     
+
+                <!--<a href="javascript:;" id="test">Test</a>            -->
+
+            </div>  
+            <!-- content: end -->
+          </div> 
+          <!-- row-fluid: start --> 
+      </div>
+      <!-- container-fluid: end -->  
+
+	<div class="form-actions">
+	<!-- container-fluid: start -->
+		<div class="container-fluid">
+			<input type="text"  class="form-control input-small" value="Ventana" >
+			<button id="automatizar" class="btn">Automatizar</button>
+		</div>	
+    </div>	
+	  
+  </body>
+</html>

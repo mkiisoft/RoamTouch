@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+  
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+  
+    <!-- Scripts --> 
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <script src="../js/functions.js"></script>	
+	   
+    <script src="../js/jquery.form.js"></script>
+  
+    <script type="text/javascript">
+       
+     $(document).ready(function(){            
+
+        get_loading_image();    
+  
+		var spreadsheet = "gdocs";
+		
+        $('#action').val(SEND_COMMAND_IMPORT_GDOCS_FILE);   
+	
+		var bar = $('.bar');
+        var percent = $('.percent');
+        var status = $('#status');
+
+        $('#upload').ajaxForm({
+
+            beforeSend: function() {
+                  status.empty();
+                  var percentVal = '0%';
+                  bar.width(percentVal)
+                  percent.html(percentVal);  
+				  
+                  $('#loading').toggleClass('off');
+            },
+            uploadProgress: function(event, position, total, percentComplete) {
+                  var percentVal = percentComplete + '%';
+                  bar.width(percentVal)
+                  percent.html(percentVal);                  
+            },
+            success: function() {
+                  var percentVal = '100%';
+                  bar.width(percentVal)
+                  percent.html(percentVal);
+                  
+            },
+            complete: function(xhr) {
+                  $('#loading').toggleClass('off');
+
+                  //status.html(xhr.responseText);
+                  //console.log(xhr.responseText);
+                  var response = $.parseJSON(xhr.responseText);
+
+                  var status = response[0].status;                  
+
+                  if( status == 1 ){                    
+
+                    $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El archivo se ha importado con &eacute;xito!</div>");                    
+                    $('#message').fadeOut(4000, function() {
+                        $('#alert_message').remove();
+                        $('#message').css('display','block');
+                    });
+
+                  }
+
+            }
+
+        });
+	
+     }); 
+      
+    </script>
+	
+	<style type="text/css">
+			.bar {
+			  width: 300px;
+			}
+			
+			#progress {
+			  background: #eee;
+			  border: 1px solid #222;
+			  margin-top: 20px;
+			}
+			#progressbar {
+			  width: 0px;
+			  height: 24px;
+			  background: #333;
+			}
+		</style>
+  
+  </head>
+   
+  <body>
+  
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+  
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+            <!-- row-fluid: start -->
+            <div class="row-fluid">
+  
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+  
+              <!-- content: start -->
+              <div id="content" class="span9" style="display:none;">                  
+
+                  <form id="upload" class="form-horizontal" enctype="multipart/form-data" method="post" action="import.html">
+  
+                    <input type="hidden" name="action" id="action"> 		
+					
+                    <fieldset>
+                        <legend>Importaci&oacute;n de archivo, elegir el formato;</legend> 
+						Deberá proveer una planilla con el formato adecuado y un archivo con la media comprimida. 
+						Para poder permitir el accero desde su cuenta de Google debe cambiar la configuración en la dirección <a href="https://www.google.com/settings/security/lesssecureapps">https://www.google.com/settings/security/lesssecureapps</a> para permitir el acceso desde aplicaciones menos seguras debe "Aceptar". <br>
+						Puede utilizar también <a href="http://bit.ly/1H4ACzh">Menu_v1.0.1</a> como ejemplo de Gmail Google Docs o bien descargar la siguiente planilla de Excel. <a href="#">Template</a> 			
+					   
+					   <div class="control-group"> 				
+							
+							<legend>Importación de datos con plantillas Google Docs</legend>  								 
+							 						   
+								<div class="control-group">
+								  <label class="control-label">Mail de Gmail:</label>                    
+								  <div class="controls">
+									  <input type="text" class="span3" id="username" name="username" value="restomatic.import@gmail.com"/>
+								  </div>
+								</div>
+
+								<div class="control-group">
+								  <label class="control-label">Contraseña:</label>                    
+								  <div class="controls">
+									  <input type="password" class="span3" id="password" name="password" value="restomatic">								  </div>
+								</div>
+								
+								<div class="control-group">
+								  <label class="control-label">Nombre de Documento:</label>                    
+								  <div class="controls">
+									  <input type="text" class="span3" id="documento" name="documento" value="Menu_v1.0.1"/>
+								  </div>
+								</div>
+							  
+													
+						<div class="control-group">  
+							<legend>Importación de arcvhivos de media</legend>  
+							<label class="control-label" for="fileInput">Zip file format</label>  
+							<div class="controls">  
+								<input class="input-file" id="item_image" name="item_image" type="file"> 		
+							</div>  
+                        </div>  
+						
+						<div class="control-group">
+                          <div class="progress" style="widht: 30px; margin-left: 180px;width: 245px;">
+                              <div class="bar"></div >
+                              <div class="percent">0%</div>
+                          </div> 
+                        </div>
+
+                        <div id="message"></div>
+
+                        <div id="loading" class="off" style="margin:0px;"><img src="#" id="loading_img"/><p style="font-weight: bold;">procesando...</p></div>
+  
+                        <div class="form-actions">                          
+                          <input type="submit" class="btn btn-primary" value="Importar">
+                          <button class="btn">Cancelar</button>                    
+                        </div>
+  
+                    </fieldset>  			
+					
+                  </form>
+              </div>   
+              <!-- content: end -->  
+                 
+            </div>  
+            <!-- row-fluid: end -->
+      </div>
+      <!-- container-fluid: end -->
+  
+  </body>
+</html>

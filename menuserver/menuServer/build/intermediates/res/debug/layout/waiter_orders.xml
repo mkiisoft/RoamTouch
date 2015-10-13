@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    <LinearLayout
+  		android:layout_width="fill_parent"
+  		android:layout_height="fill_parent"
+  		android:orientation="vertical"
+  		android:background="@color/background_list_left" >
+      	
+       <ListView 
+            android:id="@+id/lvOrderDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:listSelector="@drawable/list_selector">
+        </ListView>
+        
+       <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:layout_below="@+id/lvOrderDetail">
+
+        <Button
+            android:id="@+id/bYesClear"
+            android:layout_width="86dp"
+            android:layout_height="wrap_content"
+            android:text="Yes" />
+
+        <Button
+            android:id="@+id/bNoClear"
+            android:layout_width="86dp"
+            android:layout_height="wrap_content"
+            android:text="No" />
+
+    </LinearLayout>    
+      
+        
+     </LinearLayout>  
+    
+
+</FrameLayout>
+<!-- From: file:/C:/Users/maria/Documents/RoamTouch/menuserver/AStudio/restomatic/menuserver/menuServer/src/main/res/layout/waiter_orders.xml -->

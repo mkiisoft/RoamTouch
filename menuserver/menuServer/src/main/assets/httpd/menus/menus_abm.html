@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+    <link rel="stylesheet" type="text/css" href="../css/jquery.timepicker.css" />
+
+    <!-- Scripts -->  
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>    
+    <script src="../js/functions.js"></script>
+    <script src="../js/jquery.timepicker.js"></script>
+    <script src="../js/jquery.form.js"></script>
+    
+    <script type="text/javascript">
+
+    /* Funcion para obtener los menus existentes */
+    function get_menus(){
+        $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: { 
+                'action': GET_MENUS
+              },
+              beforeSend: function(){
+                  $('#loading').toggleClass('off');
+              },
+              success: function(data){
+
+                  $('#loading').toggleClass('off');                  
+
+                  if( !($.isEmptyObject(data)) ){
+                    
+                      $('#table_menus').html("<thead>"+
+                          "<th>Nombre del Men&uacute;</th>"+                          
+                          "<th>Hora Desde</th>"+  
+                          "<th>Hora Hasta</th>"+                          
+                          "</thead>"+
+                          "<tbody>"+
+                          "<body>"+
+                          "</tbody>");
+
+                      for (var i=0, len=data.length; i < len; i++) {
+                          
+                          $('#table_menus > tbody').append(
+                                "<tr class="+ data[i]._id +">"+
+                                  "<td class='menu_name'>"+ data[i].description +"</td>"+
+                                  "<td class='interval_from'>"+ data[i].interval_from +"</td>"+
+                                  "<td class='interval_to'>"+ data[i].interval_to +"</td>"+
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='edit_menu("+ data[i]._id +")'><i class='icon-edit'></i>Editar</a>"+
+                                  "</td>"+
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='delete_menu("+ data[i]._id +")'><i class='icon-remove-circle'></i>Eliminar</a>"+
+                                  "</td>"+
+                                "</tr>");   
+                      }
+                  }else{
+                      
+                  }
+              },
+              complete: function(){
+                  /*$('#add_menu_form').css('display','block');  
+                  $('#edit_menu_form').css('display','none'); */
+                  $('.scroll_table_menus').show();  
+                  $('#add_new_menu').show();
+              }
+          });   
+    }  
+
+    /* Funcion para eliminar un menu */
+    function delete_menu(menu_id){
+
+        if ( confirm("¿Está seguro de eliminar el Menú?") ) {
+            $('#table_menus > tbody > tr.' + menu_id).remove();        
+
+            $.ajax({
+                type: 'POST',       
+                url: url_href, 
+                data: {             
+                'menu_id': menu_id,         
+                'action': DELETE_MENU
+                },
+                success: function(data){
+                    $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El men&uacute; se elimin&oacute; con &eacute;xito!</div>");
+            
+                    $('#message').fadeOut(4000, function() {
+                        $('#alert_message').remove();
+                        $('#message').css('display','block');
+                    });
+                }         
+            });  
+        }        
+    }
+
+    /* Funcion para editar un menu */
+    function edit_menu( menu_id ){
+
+        $('#edit_interval_from').timepicker({ 'timeFormat': 'G:i' });
+        $('#edit_interval_to').timepicker({ 'timeFormat': 'G:i' });
+
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: {             
+            'menu_id': menu_id,         
+            'action': GET_MENU_BY_ID
+            },
+            success: function(data){                 
+                $('#add_menu_form').hide(); 
+                $('.scroll_table_menus').hide(); 
+                $('#add_new_menu').hide(); 
+
+                $('#edit_action').val(UPDATE_MENU); 
+                
+                $('#edit_menu_form').show();                         
+                $('#menu_id').val(data[0]._id); 
+                $('#edit_description_menu').val(data[0].description); 
+                $('#edit_interval_from').val(data[0].interval_from); 
+                $('#edit_interval_to').val(data[0].interval_to); 
+            }         
+        });   
+    }
+        
+    $(document).ready(function(){                
+
+        get_loading_image();  
+
+        /* Obtengo los menus existentes al cargar la pagina*/
+        get_menus();   
+
+        $('#interval_from').timepicker({ 'timeFormat': 'G:i' });
+        $('#interval_to').timepicker({ 'timeFormat': 'G:i' });
+
+        $("#add_menu_form").ajaxForm({
+
+              beforeSubmit: function(arr, $form, options) { 
+                // The array of form data takes the following form: 
+                console.log(arr);
+                console.log(options);
+                
+                /* Si no escribio la descripcion de la mesa */
+                if( arr[1].value == "" ){
+                
+                  $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe ingresar la descripción del Menú.</div>");
+
+                  $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                  });
+                
+                  return false;
+                  
+                }                  
+              },              
+              success: function() {
+
+                   $('#add_menu_form').hide();
+                    $('#description_menu').val('');
+                        $('#interval_from').val('');
+                        $('#interval_to').val('');
+                        $('.scroll_table_menus').hide();
+
+                        $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El men&uacute; se cre&oacute; con &eacute;xito!</div>");
+                        
+                        get_menus();                      
+
+                        $('#message').fadeOut(4000, function() {
+                            $('#alert_message').remove();
+                            $('#message').css('display','block');
+                        });
+                                    
+              }
+
+        });
+      
+        /* Agrego un nuevo menu */
+        /*$("#submit_menu").click(function() {    
+
+              var description_menu = $("#description_menu").val();
+              var interval_from    = $("#interval_from").val();
+              var interval_to      = $("#interval_to").val();
+              
+              $.ajax({
+                  type: 'POST',       
+                  url: url_href, 
+                  data: {             
+                  'description_menu': description_menu, 
+                  'interval_from': interval_from,
+                  'interval_to': interval_to,       
+                  'action': INSERT_MENU
+                  },
+                  success: function(data){
+                      $('#add_menu_form').hide();
+                      $('#description_menu').val('');
+                      $('#interval_from').val('');
+                      $('#interval_to').val('');
+                      $('.scroll_table_menus').hide();
+
+                      $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El men&uacute; se cre&oacute; con &eacute;xito!</div>");
+                      
+                      get_menus();                      
+
+                      $('#message').fadeOut(4000, function() {
+                          $('#alert_message').remove();
+                          $('#message').css('display','block');
+                      });
+                  }
+              }); 
+        }); 
+        */
+
+        $('#edit_menu_form').ajaxForm({
+
+            beforeSubmit: function(arr, $form, options) { 
+                // The array of form data takes the following form: 
+                console.log(arr);
+                console.log(options);
+
+                //return false;
+                
+                /* Si no escribio la descripcion de la mesa */
+                if( arr[1].value == "" ){
+                
+                  $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe ingresar la descripción del Menú.</div>");
+
+                  $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                  });
+                
+                  return false;
+                  
+                }                  
+              },              
+              success: function() {
+
+                  $('#edit_menu_form').hide();
+                      $('#menu_id').val('');
+                      $('#description_menu').val('');
+                      $('#interval_from').val('');
+                      $('#interval_to').val('');   
+
+                      $("#edit_description_menu").val('');
+                      $("#edit_interval_from").val('');
+                      $("#edit_interval_to").val('');                   
+
+                      $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El men&uacute; se actualiz&oacute; con &eacute;xito!</div>");
+
+                      get_menus();   
+
+                      $('#message').fadeOut(4000, function() {
+                          $('#alert_message').remove();
+                          $('#message').css('display','block');
+                      });
+                                    
+              }
+
+        });
+
+        /* Edito un menu */
+        /*
+        $("#edit_menu").click(function() {    
+              var menu_id = $("#menu_id").val();
+              var description_menu = $("#edit_description_menu").val();
+              var interval_from    = $("#edit_interval_from").val();
+              var interval_to      = $("#edit_interval_to").val();
+              
+              $.ajax({
+                  type: 'POST',       
+                  url: url_href, 
+                  data: {       
+                  'description_menu': description_menu,
+                  'interval_from': interval_from,
+                  'interval_to': interval_to,            
+                  'menu_id': menu_id,
+                  'action': UPDATE_MENU
+                  },
+                  success: function(data){
+                      $('#edit_menu_form').hide();
+                      $('#menu_id').val('');
+                      $('#description_menu').val('');
+                      $('#interval_from').val('');
+                      $('#interval_to').val('');   
+
+                      $("#edit_description_menu").val('');
+                      $("#edit_interval_from").val('');
+                      $("#edit_interval_to").val('');                   
+
+                      $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El men&uacute; se actualiz&oacute; con &eacute;xito!</div>");
+
+                      get_menus();   
+
+                      $('#message').fadeOut(4000, function() {
+                          $('#alert_message').remove();
+                          $('#message').css('display','block');
+                      });
+                  }
+              }); 
+        });   */
+
+        $('#add_new_menu').click(function(){  
+            $('.scroll_table_menus').hide();   
+            $(this).hide();       
+            $('#edit_menu_form').hide();
+            $('#menu_id').val('');
+            $('#edit_description_menu').val('');
+            $('#edit_interval_from').val('');
+            $('#edit_interval_to').val('');
+
+            $('#action').val(INSERT_MENU);
+
+            $('#add_menu_form').show();
+        });        
+    
+    });    
+    
+    </script>
+
+  </head>
+  
+  <body>
+
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+          <!-- row-fluid: start -->
+          <div class="row-fluid">
+
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+            
+              <!-- content: start -->
+              <div id="content" class="span9" style="display:none;">
+                  
+                  <div id="message"></div>  
+
+                  <div>
+                    <button type="button" id="add_new_menu" class="btn btn-success" style="margin-top: 10px; display:none;">Agregar Menú</button> 
+                  </div>  
+
+                  <div class="scroll_table_menus">
+
+                    <div id="loading" class="off"><img src="#" id="loading_img"/><p style="font-weight: bold;">cargando...</p></div>
+
+                    <table class="table table-hover" id="table_menus">                
+                    </table>  
+                  </div>
+
+                  <form class="form-horizontal" id="add_menu_form" enctype="multipart/form-data" method="post" style="display:none;">
+                    <fieldset>
+
+                        <input type="hidden" name="action" id="action" value="">
+
+                        <legend>Agregar Men&uacute;</legend>  
+                        <div class="control-group">
+                          <label class="control-label">Nombre del Men&uacute;:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span3" id="description_menu" name="description_menu" />
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Hora Desde:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span2" id="interval_from" name="interval_from" />
+                          </div>                          
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Hora Hasta:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span2" id="interval_to" name="interval_to" />
+                          </div>                          
+                        </div>
+
+                        <div class="form-actions">
+                          <input type="submit"  class="btn btn-primary" value="Crear" >
+                          <button class="btn">Cancelar</button>
+                        </div>
+
+                    </fieldset>              
+                  </form>
+
+                  <form class="form-horizontal" id="edit_menu_form" enctype="multipart/form-data" method="post"  style="display:none;">
+                      <fieldset>
+
+                          <input type="hidden" name="edit_action" id="edit_action" value="">
+
+                          <legend>Editar Men&uacute;s</legend>  
+                          <div class="control-group">
+                            <label class="control-label">Nombre del Men&uacute;:</label>                    
+                            <div class="controls">
+                                <input type="text" class="span3" id="edit_description_menu" name="description_menu" val=""/>
+                                <input type="hidden" id="menu_id" value="" name="menu_id">
+                            </div>
+                          </div>
+
+                          <div class="control-group">
+                            <label class="control-label">Hora Desde:</label>                    
+                            <div class="controls">
+                                <input type="text" class="span2" id="edit_interval_from" name="interval_from" />
+                            </div>                          
+                          </div>
+
+                          <div class="control-group">
+                            <label class="control-label">Hora Hasta:</label>                    
+                            <div class="controls">
+                                <input type="text" class="span2" id="edit_interval_to" name="interval_to" />
+                            </div>                          
+                          </div>
+
+                          <div class="form-actions">
+                            <input type="submit"  class="btn btn-primary" value="Editar" >
+                            <button class="btn">Cancelar</button>
+                          </div>
+
+                      </fieldset>              
+                  </form>
+              </div>    
+              <!-- content: end -->
+
+          </div> 
+          <!-- row-fluid: end --> 
+      </div>
+      <!-- container-fluid: end -->
+      
+  </body>
+</html>

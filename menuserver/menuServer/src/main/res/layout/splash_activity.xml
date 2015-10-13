@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/forms_color_fondo_login" >
+    
+        <TextView
+            android:id="@+id/inicialization"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Inicializando..."
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="25dp" />
+        
+        <Button
+		    android:id="@+id/btnTryAgain"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"		   
+		    android:background="@drawable/login_fondo_bton_reintentar"
+		    android:layout_gravity="center"
+		    android:gravity="center"
+		    android:visibility="gone" />
+        
+    
+</LinearLayout>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+    <!-- Scripts -->  
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>    
+    <script src="../js/functions.js"></script>
+    <script src="../js/jquery.form.js"></script>
+    
+    <script type="text/javascript">
+
+    /* Funcion para obtener los menus existentes */
+    function get_users(){
+        $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: { 
+                'action': GET_USERS
+              },
+              beforeSend: function(){
+                  $('#loading').toggleClass('off');
+              },
+              success: function(data){
+
+                  $('#loading').toggleClass('off');
+
+                  if( !($.isEmptyObject(data)) ){
+                    
+                      $('#table_users').html("<thead>"+
+                          "<th>Nombre de Usuario</th>"+
+                          "<th>Nombre y Apellido</th>"+
+                          "<th>Email</th>"+
+                          "<th>Perfil</th>"+
+                          "<th>Estado</th>"+
+                          "</thead>"+
+                          "<tbody>"+
+                          "<body>"+
+                          "</tbody>");
+
+                      for (var i=0, len=data.length; i < len; i++) {
+
+                          var logged_status = data[i].status;
+                          var user_status = 'Inactivo';
+                          if( logged_status == 1 ){
+                            user_status = 'Activo';
+                          }
+                          
+                          $('#table_users > tbody').append(
+                                "<tr class="+ data[i]._id +">"+
+                                  "<td class='username'>"+ data[i].username +"</td>"+
+                                  "<td class='name'>"+ data[i].first_name + " " + data[i].last_name +"</td>"+
+                                  "<td class='email'>"+ data[i].email +"</td>"+                                 
+                                  "<td class='description'>"+ data[i].description +"</td>"+
+                                  "<td class='status'>"+ user_status +"</td>"+
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='edit_user("+ data[i]._id +")'><i class='icon-edit'></i>Editar</a>"+
+                                  "</td>"+
+                                  "<td>"+
+                                    "<a href='javascript:;' onclick='delete_user("+ data[i]._id +")'><i class='icon-remove-circle'></i>Eliminar</a>"+
+                                  "</td>"+
+                                "</tr>");   
+                      }
+                  }
+              },
+              complete: function(){
+                  $('.scroll_table_users').show();  
+                  $('#add_new_user').show();             
+              }
+          });   
+    }  
+
+    /* Funcion para eliminar un menu */
+    function delete_user(user_id){
+
+        if ( confirm("¿Está seguro de eliminar el usuario seleccionado?") ) {
+
+            $('#table_users > tbody > tr.' + user_id).remove();        
+
+            $.ajax({
+                type: 'POST',       
+                url: url_href, 
+                data: {             
+                'user_id': user_id,         
+                'action': DELETE_USER
+                },
+                success: function(data){
+                    $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El usuario se elimin&oacute; con &eacute;xito!</div>");
+            
+                    $('#message').fadeOut(4000, function() {
+                        $('#alert_message').remove();
+                        $('#message').css('display','block');
+                    });
+                }         
+            });
+        }  
+    }
+
+    /* Funcion para editar un menu */
+    function edit_user( user_id ){
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: {             
+            'user_id': user_id,         
+            'action': GET_USER_BY_ID
+            },
+            success: function(data){       
+
+                $('#add_user_form').hide();  
+
+                $('.scroll_table_users').hide(); 
+                $('#add_new_user').hide();    
+
+                $('#edit_action').val( UPDATE_USER );       
+
+                $('#edit_user_form').show();  
+
+                $('#user_id').val(data[0]._id); 
+                $('#edit_username').val(data[0].username); 
+                $('#edit_password').val(data[0].password); 
+                $('#edit_first_name').val(data[0].first_name); 
+                $('#edit_last_name').val(data[0].last_name); 
+                $('#edit_email').val(data[0].email); 
+                $('#edit_profiles').val(data[0].profile_id);    
+                $('#edit_profile_id').val(data[0].profile_id);    
+            }         
+        });   
+    }
+        
+    $(document).ready(function(){      
+
+        get_loading_image();           
+
+        /* Obtengo los usuarios existentes al cargar la pagina*/
+        get_users();  
+
+        /* Obtengo los perfiles existentes */
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: { 
+              'action': GET_USER_PROFILES
+            },
+            success: function(data){               
+              for (var i=0, len=data.length; i < len; i++) {                    
+                  $('#profiles').append("<option value=" + data[i]._id + ">" + data[i].description + "</option>"); 
+                  $('#edit_profiles').append("<option value=" + data[i]._id + ">" + data[i].description + "</option>");      
+              }
+            }
+        });   
+      
+        /* Agrego un nuevo usuario */
+        $("#add_user_form").ajaxForm({
+                            
+              beforeSubmit: function(arr, $form, options) { 
+                // The array of form data takes the following form: 
+                
+                console.log(arr);
+                console.log(options);
+                //console.log(arr[7]);
+                //return false;
+                /* Si no eligio ningun perfil de usuario */
+                if( arr[7].value == 0 ){
+                
+                  $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe seleccionar un perfil para el usuario.</div>");
+
+                  $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                  });
+                
+                  return false;
+                  
+                }                  
+              },              
+              success: function() {
+
+                  $('#add_user_form').hide();
+
+                  $('#username').val('');
+                  $('#password').val('');
+                  $('#first_name').val('');
+                  $('#last_name').val('');
+                  $('#email').val('');
+                  $('#profiles').val('');
+
+                  $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El usuario se cre&oacute; con &eacute;xito!</div>");
+                  
+                  get_users();                      
+
+                  $('#message').fadeOut(4000, function() {
+                      $('#alert_message').remove();
+                      $('#message').css('display','block');
+                  });
+                                    
+              }
+        });   
+
+        $("#profiles").change(function(){
+
+            $('#profile_id').val( $(this).val() );
+
+        });
+
+        $("#edit_profiles").change(function(){
+
+            $('#edit_profile_id').val( $(this).val() );
+
+        });
+
+        /* Edito un usuario */
+        $("#edit_user_form").ajaxForm({
+                            
+              beforeSubmit: function(arr, $form, options) { 
+                // The array of form data takes the following form: 
+                                
+                /* Si no eligio ningun perfil de usuario */
+                /*if( arr[7].value == 0 ){
+                
+                  $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe seleccionar un perfil para el usuario.</div>");
+
+                  $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                  });
+                
+                  return false;
+                  
+                } */                 
+              },              
+              success: function() {
+
+                  $('#edit_user_form').hide();
+                  $('#user_id').val('');
+
+                  $('#add_new_user').show();
+
+                  $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El usuario se actualiz&oacute; con &eacute;xito!</div>");
+                  
+                  get_users();                      
+
+                  $('#message').fadeOut(4000, function() {
+                      $('#alert_message').remove();
+                      $('#message').css('display','block');
+                  });
+                                    
+              }
+        });       
+
+        $('#add_new_user').click(function(){  
+
+            $('.scroll_table_users').hide();   
+            $(this).hide();       
+            $('#edit_user_form').hide();
+
+            $('#action').val( CREATE_USER );
+            
+            $('#user_id').val('');
+            $('#username').val('');
+            $('#first_name').val('');
+            $('#last_name').val('');
+            $('#email').val('');
+            $('#profile_id').val('');
+            
+            $('#add_user_form').show();
+
+        });      
+    
+    });    
+    
+    </script>
+
+  </head>
+  
+  <body>
+
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+          <!-- row-fluid: start -->
+          <div class="row-fluid">
+
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+            
+              <!-- content: start -->
+              <div id="content" class="span9" style="display:none;">
+
+                  <div id="message"></div> 
+
+                  <div>
+                    <button type="button" id="add_new_user" class="btn btn-success" style="margin-top: 10px; display:none;">Agregar Usuario</button> 
+                  </div> 
+
+                  <div class="scroll_table_users">
+
+                  <div id="loading" class="off"><img src="#" id="loading_img"/><p style="font-weight: bold;">cargando...</p></div>
+                  
+                  <table class="table table-hover" id="table_users">                
+                  </table>  
+
+                  </div>
+
+                  <form class="form-horizontal" enctype="multipart/form-data" id="add_user_form" action="users_abm.html" style="display:none;" method="post">
+                    <fieldset>
+
+                        <input type="hidden" name="action" id="action" value="">
+
+                        <legend>Agregar Usuario</legend>  
+                        <div class="control-group">
+                          <label class="control-label">Nombre de Usuario:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span3" id="username" name="username" />
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Contraseña:</label>                    
+                          <div class="controls">
+                              <input type="password" class="span3" id="password" name="password" />
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Nombre:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span3" id="first_name" name="first_name" />
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Apellido:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span3" id="last_name" name="last_name" />
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Email:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span3" id="email" name="email" />
+                          </div>
+                        </div>
+
+                        <input type="hidden" name="status" id="status" value="0" />
+
+                        <div class="control-group">
+                          <label class="control-label">Perfil:</label>                  
+                          <div class="controls">
+                              <select id="profiles">
+                                  <option value="0">Perfil...</option>                            
+                              </select>
+                          </div>
+                        </div>
+
+                        <input type="hidden" name="profile_id" id="profile_id" value="0" />
+
+                        <div class="form-actions">
+                          <input type="submit" class="btn btn-primary" value="Crear">
+                          <button class="btn">Cancelar</button>
+                        </div>
+
+                    </fieldset>              
+                  </form>
+
+                  <form class="form-horizontal" enctype="multipart/form-data" id="edit_user_form" style="display:none;" method="post" action="users_abm.html">
+                      <fieldset>
+
+                        <input type="hidden" name="edit_action" id="edit_action" value="">
+                        <input type="hidden" id="user_id" value="" name="user_id">
+
+                        <legend>Editar Usuario</legend>  
+                        <div class="control-group">
+                          <label class="control-label">Nombre de Usuario:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span3" id="edit_username" name="username" />
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Contraseña:</label>                    
+                          <div class="controls">
+                              <input type="password" class="span3" id="edit_password" name="password" />
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Nombre:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span3" id="edit_first_name" name="first_name" />
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Apellido:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span3" id="edit_last_name" name="last_name" />
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Email:</label>                    
+                          <div class="controls">
+                              <input type="text" class="span3" id="edit_email" name="email" />
+                          </div>
+                        </div>
+
+                        <input type="hidden" name="status" id="status" value="0" />
+
+                        <div class="control-group">
+                          <label class="control-label">Perfil:</label>                  
+                          <div class="controls">
+                              <select id="edit_profiles">                                                       
+                              </select>
+                          </div>
+                        </div>
+
+                        <input type="hidden" name="profile_id" id="edit_profile_id" value="0" />                        
+
+                          <div class="form-actions">
+                            <!--<button type="button" id="edit_user" class="btn btn-primary">Editar</button>-->
+                            <input type="submit" value="Editar" class="btn btn-primary" />
+                            <button class="btn">Cancelar</button>
+                          </div>
+
+                      </fieldset>              
+                  </form>
+              </div>    
+              <!-- content: end -->
+
+          </div> 
+          <!-- row-fluid: end --> 
+      </div>
+      <!-- container-fluid: end -->
+      
+  </body>
+</html>

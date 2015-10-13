@@ -1,0 +1,2 @@
+include ':viewPageIndicatorLibrary'
+include ':menuServer'

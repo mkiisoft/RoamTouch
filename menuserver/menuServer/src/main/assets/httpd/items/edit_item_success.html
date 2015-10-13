@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+    <!-- Scripts -->  
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <script src="../js/functions.js"></script>
+
+    <script type="text/javascript">
+  
+    $(document).ready(function(){                
+	
+		alert('Se modificó el menu item con exito');
+		window.location.href = url_href + '/items/items_abm.html';		
+		  
+    });    
+
+    
+    
+    </script>
+
+  </head>
+  
+  <body>
+
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+            <!-- row-fluid: start -->
+            <div class="row-fluid">
+
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+
+              <!-- content: start -->
+              <div id="content" class="span9" style="display:none;">
+                  <form class="form-horizontal" enctype="multipart/form-data" method="post">
+
+                    <input type="hidden" name="action" id="action">
+                    <input type="hidden" name="category_id" id="category_id">              
+
+                    <fieldset>
+                        <legend>Administraci&oacute;n de los Items del Men&uacute;</legend>  
+                        
+                        <div class="control-group">
+                          <label class="control-label">Nombre del Item:</label>                  
+                          <div class="controls">
+                              <input type="text" class="span3" id="item_name" name="item_name"/>
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Descripci&oacute;n:</label>                  
+                          <div class="controls">
+                              <input type="text" class="span3" id="item_description" name="item_description"/>
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Precio:</label>                  
+                          <div class="controls">
+                              <div class="input-prepend">
+                                <span class="add-on">$</span>
+                                <input class="span12" id="item_price" type="text" name="item_price">
+                              </div>
+                          </div>
+                        </div>
+      				  
+      				          <div class="control-group" id="menu_control_group">
+                          <label class="control-label">Pertenece al Men&uacute;</label>                  
+                          <div class="controls">
+                              <select id="menus">
+                                  <option value="0">Men&uacute;...</option>                                               
+                              </select>
+                          </div>
+                        </div>
+
+                        <div id="categories_message"></div>
+
+                        <div class='control-group' id='categories_control_group'>
+                          <label class='control-label'>Pertenece a la Categor&iacute;a:</label>                  
+                          <div class='controls'>
+                              <select id='categories'>
+                                 <option value='0'>Categor&iacute;a...</option>
+                              </select>
+                          </div>
+                        </div>                  
+
+                        <div class="control-group">  
+                          <label class="control-label" for="fileInput">Imagen</label>  
+                          <div class="controls">  
+                            <input class="input-file" id="item_image" name="item_image" type="file">  
+                          </div>  
+                        </div>  
+
+                        <div class="form-actions">
+                          <button type="submit" id="submit_menu_item" class="btn btn-primary">Crear</button>
+                          <button class="btn">Cancelar</button>                    
+                        </div>
+
+                    </fieldset>              
+                  </form>
+              </div>   
+              <!-- content: end -->    
+                
+            </div>  
+            <!-- row-fluid: end -->
+      </div>
+      <!-- container-fluid: end --> 
+
+  </body>
+</html>

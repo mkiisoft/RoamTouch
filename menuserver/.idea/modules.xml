@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/menuServer/menuServer.iml" filepath="$PROJECT_DIR$/menuServer/menuServer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/menuserver.iml" filepath="$PROJECT_DIR$/menuserver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/viewPageIndicatorLibrary/viewPageIndicatorLibrary.iml" filepath="$PROJECT_DIR$/viewPageIndicatorLibrary/viewPageIndicatorLibrary.iml" />
+    </modules>
+  </component>
+</project>

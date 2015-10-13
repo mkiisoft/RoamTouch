@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+	android:background="#FFFFFF">
+    
+    
+    <LinearLayout android:layout_weight="1" 
+        android:orientation="horizontal" android:layout_height="fill_parent" android:layout_width="fill_parent">
+  	
+        <LinearLayout 
+	  	    android:layout_weight="2" 
+	  	    android:layout_height="fill_parent" 
+	  	    android:layout_width="fill_parent"
+	  	    android:orientation="horizontal">
+  		
+	  		<ExpandableListView
+		        android:id="@+id/expandable_list_waiters"        
+		        android:layout_height="match_parent"
+		        android:layout_width="match_parent"
+		        android:groupIndicator="@null" />  		 
+	            	            
+        </LinearLayout>
+  		
+	</LinearLayout>	
+  	
+  	<LinearLayout 
+  	    android:layout_weight="2" 
+  	    android:layout_height="fill_parent" 
+  	    android:layout_width="fill_parent"
+  	    android:orientation="vertical">
+    
+		    <FrameLayout 
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent"
+		        android:layout_weight="1">
+				
+		        <LinearLayout
+		    		android:layout_width="match_parent"
+		    		android:layout_height="match_parent"
+		    		android:orientation="vertical"
+		    		android:background="@color/background_list_left" >
+		    		
+		            <FrameLayout 
+		        		android:layout_width="fill_parent"
+		        		android:layout_height="0dp"
+		        		android:layout_weight="2">
+		        		
+		                <RelativeLayout 
+		                    android:layout_width="match_parent"
+		                    android:layout_height="match_parent">
+		
+		                    <TextView
+		                        android:id="@+id/textView1"
+		                        android:layout_width="wrap_content"
+		                        android:layout_height="wrap_content"
+		                        android:layout_centerHorizontal="true"
+		              			android:layout_marginTop="35dp"	
+		                        android:text="Administración Web"
+		                        android:textColor="#666666"
+		                        android:textStyle="bold"
+		                        android:textAppearance="?android:attr/textAppearanceMedium" />
+		                    
+		                    <TextView
+		                        android:id="@+id/tvIpAddress"
+		                        android:layout_width="wrap_content"
+		                        android:layout_height="wrap_content"
+		                        android:layout_below="@+id/textView1"
+		                        android:layout_centerHorizontal="true"
+		              			android:text="Large Text"
+		              			android:textColor="#333333"
+		                        android:textAppearance="?android:attr/textAppearanceLarge" />
+		                    
+		                </RelativeLayout>
+		        	</FrameLayout>
+		        	<FrameLayout 
+		        		android:layout_width="fill_parent"
+		        		android:layout_height="0dp"
+		        		android:layout_weight="1">
+		                
+		        	    <LinearLayout
+		    				android:layout_width="match_parent"
+		    				android:layout_height="match_parent"
+		    				android:orientation="horizontal" >
+		                    
+		        	        <FrameLayout 
+		        				android:layout_width="0dp"
+		        				android:layout_height="fill_parent"
+		        				android:layout_weight="1">
+		        	        
+					        	    <RelativeLayout 
+					                    android:layout_width="match_parent"
+					                    android:layout_height="match_parent">
+					                    
+					        	        <TextView
+					                        android:id="@+id/textView2"
+					                        android:layout_width="wrap_content"
+					                        android:layout_height="wrap_content"
+					                        android:layout_centerHorizontal="true"
+					              			android:layout_marginTop="5dp"	
+					                        android:text="Mesas Abiertas"
+					                        android:textColor="#666666"
+					                        android:textAppearance="?android:attr/textAppearanceMedium" />
+					                    <TextView
+					                        android:id="@+id/tvCountOpenTable"
+					                        android:layout_width="wrap_content"
+					                        android:layout_height="wrap_content"
+					                        android:layout_below="@+id/textView2"
+					                        android:layout_centerHorizontal="true"
+					              			android:text="10"
+					              			android:textColor="#333333"
+					                        android:textAppearance="?android:attr/textAppearanceLarge" />
+					        	        
+					                </RelativeLayout>
+					         </FrameLayout>
+					         <FrameLayout 
+		        				android:layout_width="0dp"
+		        				android:layout_height="fill_parent"
+		        				android:layout_weight="1">
+		        	        
+					        	    <RelativeLayout 
+					                    android:layout_width="match_parent"
+					                    android:layout_height="match_parent">
+					                    
+					        	        <TextView
+					                        android:id="@+id/textView3"
+					                        android:layout_width="wrap_content"
+					                        android:layout_height="wrap_content"
+					                        android:layout_centerHorizontal="true"
+					              			android:layout_marginTop="5dp"	
+					                        android:text="Comandas"
+					                        android:textColor="#666666"
+					                        android:textAppearance="?android:attr/textAppearanceMedium" />
+					                    <TextView
+					                        android:id="@+id/tvCountComanda"
+					                        android:layout_width="wrap_content"
+					                        android:layout_height="wrap_content"
+					                        android:layout_below="@+id/textView3"
+					                        android:layout_centerHorizontal="true"
+					              			android:text="50"
+					              			android:textColor="#333333"
+					                        android:textAppearance="?android:attr/textAppearanceLarge" />
+					        	        
+					                </RelativeLayout>
+					         </FrameLayout>
+					     </LinearLayout>
+		        	</FrameLayout>
+		        	<FrameLayout 
+		        		android:layout_width="fill_parent"
+		        		android:layout_height="0dp"
+		        		android:layout_weight="2">
+		        	    
+		        	     <LinearLayout
+		    				android:layout_width="match_parent"
+		    				android:layout_height="match_parent"
+		    				android:orientation="horizontal" >
+		                    
+		        	        <FrameLayout 
+		        				android:layout_width="0dp"
+		        				android:layout_height="fill_parent"
+		        				android:layout_weight="1">
+		        	        
+					        	    <RelativeLayout 
+					                    android:layout_width="match_parent"
+					                    android:layout_height="match_parent">
+					                    
+					        	        <TextView
+					                        android:id="@+id/textView4"
+					                        android:layout_width="wrap_content"
+					                        android:layout_height="wrap_content"
+					                        android:layout_centerHorizontal="true"
+					              			android:layout_marginTop="5dp"	
+					                        android:text="Mozos"
+					                        android:textColor="#666666"
+					                        android:textAppearance="?android:attr/textAppearanceMedium" />
+					                    <TextView
+					                        android:id="@+id/tvCountActiveUsers"
+					                        android:layout_width="wrap_content"
+					                        android:layout_height="wrap_content"
+					                        android:layout_below="@+id/textView4"
+					                        android:layout_centerHorizontal="true"
+					              			android:text="4"
+					              			android:textColor="#333333"
+					                        android:textAppearance="?android:attr/textAppearanceLarge" />
+					        	        
+					                </RelativeLayout>
+					                
+					         </FrameLayout>
+					         
+					         
+					     </LinearLayout>
+					     
+		        	</FrameLayout>
+		            
+		        </LinearLayout>
+		        
+		    </FrameLayout>
+		    
+		    <FrameLayout 		        
+		        android:layout_weight="1"
+		        android:layout_height="fill_parent"
+		        android:layout_width="fill_parent">
+		        
+		         <ListView
+		            android:id="@+id/serverLog"
+		            android:choiceMode="singleChoice"
+		            android:layout_height="wrap_content"	
+		            android:layout_width="match_parent"                 
+		            android:stackFromBottom="true"  
+		            android:transcriptMode="alwaysScroll"/>
+		        
+		    </FrameLayout>		    
+			    
+	    
+	    </LinearLayout>
+    
+  	</LinearLayout>	

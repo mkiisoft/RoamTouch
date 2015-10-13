@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+    <!-- Scripts -->  
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <script src="../js/functions.js"></script>
+ 
+    <script type="text/javascript">
+
+    function get_menu_item_video( menu_item_id ){
+
+        $('#menu_items_videos').find('video').remove();
+        
+        /* Obtengo la imagen al cargar la pagina */        
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: {               
+              'menu_item_id': menu_item_id,
+              'action': GET_MENU_ITEM_VIDEOS_BY_ID
+            },
+            success: function(data){  
+
+              if( !($.isEmptyObject(data)) ){                
+
+                for (var i=0, len=data.length; i < len; i++) { 
+
+                    var video_src = url_href + data[i].path;                      
+
+                    $('#menu_items_videos').append("<video width='320' height='240' controls>"+
+                              "<source src=" + video_src + " type='video/mp4' id="+data[i]._id+">"+
+                              "Your browser does not support the video tag."+
+                              "</video>");                    
+                }
+
+              }
+            }
+        });   
+    }
+  
+    $(document).ready(function(){   
+
+        /* Obtengo los menus existentes al cargar la pagina */
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: { 
+              'action': GET_MENUS
+            },
+            success: function(data){                        
+              for (var i=0, len=data.length; i < len; i++) {                  
+                  $('#menus').append("<option value=" + data[i]._id + ">" + data[i].description + "</option>");      
+              }
+            }
+        });   
+
+        /* Cuando elijo el menu, traigo las categorias correspondientes a dicho menu */
+        $('#menus').change(function(){
+            var menu_id = $('#menus').find(":selected").val();                       
+            
+            /* Verifico que el menu elegido sea valido */
+            if( (menu_id != 0) && (menu_id != 'undefined') ){
+                $.ajax({
+                    type: 'POST',       
+                    url: url_href, 
+                    data: { 
+                      'menu_id': menu_id,
+                      'action': GET_CATEGORIES_BY_MENU_ID
+                    },
+                    success: function(data){                       
+                      if( $.isEmptyObject(data) ){
+                          $('#categories_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>No existe ninguna categor&iacute;a para el men&uacute; seleccionado</div>");
+
+                          $('#categories_control_group').css('display','none');
+                          $('#categories')
+                              .find('option')
+                              .remove()
+                              .end()
+                              .append('<option value="0">Categor&iacute;a</option>')                              
+                          ;
+                          $('#category_id').val( '' );
+
+                          $('#categories_message').fadeOut(4000, function() {
+                              $('#alert_message').remove();
+                              $('#categories_message').css('display','block');
+                          });
+                      }else{
+
+                        $('#categories')
+                              .find('option')
+                              .remove()
+                              .end()
+                              .append('<option value="0">Categor&iacute;a</option>')                              
+                        ;
+                        
+                        $('#categories_control_group').css('display','block');
+
+                          for (var i=0, len=data.length; i < len; i++) {
+                              //alert(data[i]._id + " " + data[i].description); 
+                              $('#categories').append("<option value=" + data[i]._id + ">" + data[i].description + "</option>");      
+                          }
+                      }
+                    }                      
+                });   
+            }else{
+              $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe elegir un menu v&aacute;lido!</div>");
+
+              $('#message').fadeOut(4000, function() {
+                  $('#alert_message').remove();
+                  $('#message').css('display','block');
+              });
+          }
+        });   
+
+        $('#categories').change(function(){
+            var menu_id     = $('#menus').find(":selected").val();
+            var category_id = $('#categories').find(":selected").val();
+
+            $.ajax({
+                type: 'POST',       
+                url: url_href, 
+                data: { 
+                  'category_id': category_id,
+                  'menu_id' : menu_id,
+                  'action': GET_MENU_ITEMS_BY_CATEGORY_ID
+                },
+                beforeSend: function(){
+                    //
+                },
+                success: function(data){                       
+
+                    if( !($.isEmptyObject(data)) ){                
+                  
+                          $('#menu_items_videos').find('li').remove();
+
+                          for (var i=0, len=data.length; i < len; i++) {
+                              
+                                var description = data[i].description;
+
+                                if( description === undefined ){
+                                    description = 'Sin descripcion';
+                                }
+
+                                get_menu_item_video( data[i]._id );
+                          }
+                    }else{
+
+                          $('#message').append("<div class='alert alert-error' id='alert_message' style='font-size: 12px;'><button type='button' class='close' data-dismiss='alert'>x</button>No se encontraron videos para esta categoría</div>");
+
+                          $('#message').fadeOut(4000, function() {
+                              $('#alert_message').remove();
+                              $('#message').show();
+                          });      
+
+                    }
+                }
+            });   
+
+        });     
+
+    });    
+
+    </script>
+
+  </head>
+  
+  <body>
+
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+
+      <div class="container-fluid">
+        <div class="row-fluid">
+
+          <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+
+          <!-- content: start -->
+          <div id="content" class="span9" style="display:none;">       
+            
+              <form class="form-horizontal" enctype="multipart/form-data" method="post">
+
+              <input type="hidden" name="action" id="action">
+              <input type="hidden" name="category_id" id="category_id">              
+
+              <fieldset>
+                  <legend>Items del Men&uacute;</legend>  
+                  
+                  <div class="control-group" id="menu_control_group">
+                    <label class="control-label">Elija el Men&uacute;</label>                  
+                    <div class="controls">
+                        <select id="menus">
+                            <option value="0">Men&uacute;...</option>                                               
+                        </select>
+                    </div>
+                  </div>
+
+                  <div id="categories_message"></div>
+
+                  <div class='control-group' id='categories_control_group'>
+                    <label class='control-label'>Elija la Categor&iacute;a:</label>                  
+                    <div class='controls'>
+                        <select id='categories'>
+                           <option value='0'>Categor&iacute;a...</option>
+                        </select>
+                    </div>
+                  </div>    
+
+                  <div id="message"></div>
+
+                  <div id="menu_items_videos">
+                  </div>
+
+              </fieldset>              
+          </form>   
+
+        </div>         
+
+        <!--<hr>
+
+          <footer>
+            <p>© Copyright 2012 - Todos los derechos reservados.</p>
+          </footer>-->
+          
+        </div>  
+      </div><!--/.fluid-container-->  
+
+  </body>
+</html>

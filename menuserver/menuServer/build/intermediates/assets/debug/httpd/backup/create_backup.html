@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+        <title>CartaMaestraWeb - Backup</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <!-- Estilos Bootstrap -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+        <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+		<link href="../bootstrap/css/bootstrap-table.css" rel="stylesheet">
+
+        <!-- Estilos propios -->
+        <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+        <!-- Scripts -->  
+        <script src="../js/jquery-1.8.3.min.js"></script>
+        <script src="../bootstrap/js/bootstrap.min.js"></script>  
+		<script src="../bootstrap/js/bootstrap-table.js"></script>		
+        <script src="../js/functions.js"></script>
+
+        <script type="text/javascript">
+      
+        $(document).ready(function(){
+		
+			$table  = $('#table_full_backup');
+			
+			$.get(url_href + "/backup/log/backup_log.json").done(function() { 
+					showLog();
+			}).fail(function() { 
+					console.log();				
+			});
+			
+			$(function(){
+				$("#registro_base").show();
+			});
+
+          get_loading_image();
+              
+				  $("#backup_system").click(function() {
+					$.ajax({
+							type: 'POST',       
+							url: url_href, 
+							data: { 
+							  'action': SEND_COMMAND_BACKUP_DATABASE_AND_MEDIA + ", include=" + $('#media_check').is(':checked') + ", comment="+  $('#comentario_full').val()
+							},
+					beforeSend: function(){
+					   $('#loading').toggleClass('off');
+					},
+					success: function(data){  
+
+						$('#loading').toggleClass('off');  
+
+						console.log(data);
+						
+						backedUp(data);
+						
+						}
+					});
+					clearForms();
+				});	
+			  
+			   $("#backup_database").click(function() {
+        			$.ajax({
+        				type: 'POST',       
+        				url: url_href, 
+        				data: { 
+        				  'action': SEND_COMMAND_BACKUP_DATABASE + ", include=" + $('#data_check').is(':checked') + ", comment="+  $('#comentario_base').val()					  				  
+						},
+                beforeSend: function(){
+                   $('#loading').toggleClass('off');
+                },
+					
+				   success: function(data){  
+
+						$('#loading').toggleClass('off');  
+
+						console.log(data);
+
+						backedUp(data);
+						
+        				}
+        			}); 	
+					clearForms( );
+    		  });		  
+           
+        }); 
+
+		function backedUp(data) {
+		
+			if( data[0].status == 1 ){
+
+				$('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</buttonEl backup se creó con éxito!</div>");                    
+				$('#message').fadeOut(4000, function() {
+					$('#alert_message').remove();
+					$('#message').css('display','block');
+				});
+					
+				if( data[1].download == 1 ){
+				   window.location.href = data[1].url;                   
+				} 
+				//refresh table
+				showLog();                
+
+			} else if( data[0].status == -1 ){
+					
+				$('#message').append("<div class='alert alert-danger' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button" + data[0].error +  "!</div>");                    
+				$('#message').fadeOut(4000, function() {
+					$('#alert_message').remove();
+					$('#message').css('display','block');
+				});
+					
+			}
+			
+		}
+		
+		function showLog( )
+		{
+			$('#registro_full').show();
+			$table.bootstrapTable(			
+				'refresh',
+				{url: "log/backup_log.json"}
+			);						
+		};
+		
+		function clearForms( )
+		{		
+			$(".controls input[type=checkbox]").each(function(){
+				if($(this).attr("checked")){
+					$(this).attr("checked",false);
+				}
+			});
+			$('#comentario_base').val("");
+			$('#comentario_full').val("");		
+		};
+		
+        </script>
+
+    </head>
+  
+  <body>
+
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+          <!-- row-fluid: start -->
+          <div class="row-fluid">
+
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+            
+              <!-- content: start -->
+              <div id="content" class="span9" style="display:none;">
+                  
+                  <table class="table table-hover" id="table_backups">                
+                  </table>  
+
+                  <form class="form-vertical" id="backup_form" enctype="multipart/form-data" method="post">
+                    <fieldset>			       
+
+                        <div class="control-group">
+                            <div id="loading" class="off" style="margin:0px;"><img src="#" id="loading_img"/><p style="font-weight: bold;">procesando...</p></div>
+                        </div>						
+                        <div id="message"></div>   
+						
+						<div id="registro_full" class="hide">		
+						
+							<legend>Registro de actividades de respaldo</legend>
+							
+							<p>La grilla muestra las recientes actividades de respaldo, puede descargar versiones anteriormente respaldadas. Puede generar versiones de respaldo y optar por desdcargar el archivo en el momento.</p>
+												
+							<table id="table_full_backup"										
+								data-height="150"
+								data-toggle="table">
+								<thead>	
+									<tr>									
+										<th data-field="fecha"> FECHA </th>				
+										<th data-field="tipo"> TIPO </th>										
+										<th data-field="archivo"> ARCHIVO DE DESCARGA  </th>
+										<th data-field="comentario"> COMENTARIO </th>										
+									</tr>
+								</thead>
+							</table>	
+							
+						</div>		
+						
+						<br>						
+												
+						<div class="form-group">
+							<legend>Descargar Media y Base de Datos</legend>
+							<p>Descargara un archivo comprimido tipo zip con fotos, videos asociados al menu y base de datos.</p>					                      
+							<button type="button" id="backup_system" class="btn btn-primary">Crear Full Backup</button>
+							<button class="btn">Cancelar</button>         
+							<div class="checkbox">
+								<label><input id="media_check" type="checkbox">Descargar Archivo Zip</label>
+							</div>						
+							<input type="text" class="form-control" id="comentario_full" placeholder="Comentarios">
+						</div>
+						
+						<br>			
+						
+						<div class="form-group">
+							<legend>Descargar solo Base de Datos</legend>
+							<p>Descargara solo archivo de base de datos.</p>
+							<button type="button" id="backup_database" class="btn btn-primary">Crear Database Backup</button>
+							<button class="btn">Cancelar</button>
+							<div class="checkbox">
+								<label><input id="data_check" type="checkbox">Descargar Archivo DB</label>
+							</div>															
+							<input type="text" class="form-control" id="comentario_base" placeholder="Comentarios">						
+						</div>                     
+
+                    </fieldset> 
+					
+                  </form>
+				  
+              </div>    
+              <!-- content: end -->
+
+          </div> 
+          <!-- row-fluid: end --> 
+      </div>
+      <!-- container-fluid: end -->
+      
+  </body>
+</html>

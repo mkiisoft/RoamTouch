@@ -1,0 +1,254 @@
+body{
+	padding-top: 60px;
+	padding-bottom: 40px;
+}
+
+/* Estilos para la validacion de los forms */
+label.valid {
+  width: 24px;
+  height: 24px;
+  background: url(img/valid.png) center center no-repeat;
+  display: inline-block;
+  text-indent: -9999px;
+}
+
+label.error {
+  font-weight: bold;
+  color: red;
+  padding: 2px 8px;
+  margin-top: 2px;
+}
+
+.sidebar-nav{
+	padding: 9px 0;
+}
+
+#loading{
+	margin-top: 100px;
+	width: 100%;
+	text-align: center;
+}
+
+#loading p{
+	font-weight: bold;
+}
+
+.off{
+	display: none;
+}
+
+/* Estilo para tabla menus */
+.scroll_table_menus{
+	height: 400px;
+	overflow-y: auto;
+}
+
+#table_menus tbody tr td.menu_name{
+	width: 50%;
+}
+
+#table_menus tbody tr td a{
+	text-decoration: none;
+}
+
+#table_menus tbody tr td i.icon-edit, i.icon-remove-circle{
+	padding-right: 3px;	
+}  
+
+/* Estilo para tabla categorias */
+.scroll_table_categories{
+	height: 400px;
+	overflow-y: auto;
+}
+
+#table_categories tbody tr td.category_name{
+	width: 40%;
+}
+
+#table_categories tbody tr td.description_menu{
+	width: 40%;
+}
+
+#table_categories tbody tr td a{
+	text-decoration: none;
+}
+
+#table_categories tbody tr td i.icon-edit, i.icon-remove-circle{
+	padding-right: 3px;	
+}  
+
+/* Estilo para tabla menu items */
+.scroll_table_menu_items{
+	height: 400px;
+	overflow-y: auto;
+}
+
+#table_menu_items tbody tr td.name{
+	width: 30%;
+}
+
+#table_menu_items tbody tr td.description{
+	width: 20%;
+}
+
+#table_menu_items tbody tr td.price{
+	width: 20%;
+}
+
+#table_menu_items tbody tr td a{
+	text-decoration: none;
+}
+
+#table_menu_items tbody tr td i.icon-edit, i.icon-remove-circle{
+	padding-right: 3px;	
+}  
+/* Estilo para tabla addons */
+.scroll_table_menu_item_addons{
+	/*height: 400px;*/
+	height: auto;
+	overflow-y: auto;
+}
+
+#table_menu_item_addons tbody tr td.menu_item_description{
+	width: 40%;
+}
+
+#table_menu_item_addons tbody tr td.menu_item_addon_description{
+	width: 40%;
+}
+
+#table_menu_item_addons tbody tr td a{
+	text-decoration: none;
+}
+
+#table_menu_item_addons tbody tr td i.icon-edit, i.icon-remove-circle{
+	padding-right: 3px;	
+}  
+
+/* Estilo para tabla mesas */
+.scroll_table_dining_tables{
+	height: 400px;
+	overflow-y: auto;
+}
+
+#table_dining_tables tbody tr td.dining_table_description{
+	width: 20%;
+}
+
+#table_dining_tables tbody tr td.dining_table_status_description{
+	width: 60%;
+}
+
+#table_dining_tables tbody tr td a{
+	text-decoration: none;
+}
+
+#table_dining_tables tbody tr td i.icon-edit, i.icon-remove-circle{
+	padding-right: 3px;	
+}  
+
+/* Estilos para la tabla menu items */
+#table_menu_items tbody tr td.dining_table_id{
+	width: 30%;
+}
+
+#table_menu_items tbody tr td.observation{
+	width: 20%;
+}
+
+#table_menu_items tbody tr td.status{
+	width: 10%;
+}
+
+#table_menu_items tbody tr td.total{
+	width: 10%;
+}
+
+#table_menu_items tbody tr td a{
+	text-decoration: none;
+}
+
+#table_menu_items tbody tr td i.icon-edit, i.icon-remove-circle, i.icon-picture, i.icon-facetime-video{
+	padding-right: 3px;	
+}  
+
+/* Estilo para tabla pedidos */
+#table_orders tbody tr td.dining_table_id{
+	width: 10%;
+}
+
+#table_orders tbody tr td.observation{
+	width: 25%;
+}
+
+#table_orders tbody tr td.status{
+	width: 40%;
+}
+
+#table_orders tbody tr td.total{
+	width: 10%;
+}
+
+#table_orders tbody tr td a{
+	text-decoration: none;
+}
+
+#table_orders tbody tr td i.icon-edit, i.icon-remove-circle, i.icon-th-list, i.icon-print{
+	padding-right: 3px;	
+}  
+
+/* Estilo para tabla detalles de un pedido */
+#table_order_detail tbody tr td.menu_item_name{
+	width: 20%;
+}
+
+#table_order_detail tbody tr td.addons{
+	width: 20%;	
+}
+
+#table_order_detail tbody tr td.quantity{
+	width: 10%;
+}
+
+#table_order_detail tbody tr td.price{
+	width: 10%;
+}
+
+#table_order_detail tbody tr td.subtotal{
+	width: 10%;
+}
+
+#table_order_detail tbody tr td a{
+	text-decoration: none;
+}
+
+#table_order_detail tbody tr td i.icon-edit, i.icon-remove-circle, i.icon-th-list{
+	padding-right: 3px;	
+}  
+
+.thumbnails .span3{
+	width: 160px;
+}
+
+.thumbnail{
+	width: 150px;
+	height: auto;
+	background: #1B1B1B;
+}
+
+.thumbnail img{
+	width: 150px;
+	height: 150px;
+}
+
+.thumbnail h5{
+	color: white;
+	text-align: center;
+}
+
+.thumbnail p{
+	/*text-align: center;*/
+	font-size: 10px;
+	margin: 0 0 5px;
+	color: white;	
+}

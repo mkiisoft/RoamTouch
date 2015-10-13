@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <ImageView
+        android:id="@+id/icon_flag"
+        android:layout_width="33px"
+        android:layout_height="33px"       
+        android:layout_marginRight="4px"        
+        android:src="@drawable/ic_launcher">
+    </ImageView>
+
+    <TextView
+        android:id="@+id/server_log"
+        android:layout_width="match_parent"
+        android:layout_height="35px"     
+        android:gravity="center_vertical" >
+    </TextView>   
+
+</LinearLayout> 
+
+<!-- From: file:/C:/Users/maria/Documents/RoamTouch/menuserver/AStudio/restomatic/menuserver/menuServer/src/main/res/layout/log_row.xml -->

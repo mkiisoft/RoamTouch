@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/login_background">
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="RESTOMATIC"
+		android:id="@+id/tvLogo"
+		android:layout_centerHorizontal="true"
+		android:layout_marginTop="50dp"
+		android:textSize="30dp" />
+
+	<LinearLayout
+		android:orientation="vertical"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:layout_centerHorizontal="true"
+		android:layout_alignParentBottom="true"
+		android:layout_marginBottom="50dp">
+
+		<EditText
+			android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:hint="Usuario"
+			android:textColorHint="@android:color/white"
+            android:ems="10"
+            android:id="@+id/etUser" />
+
+		<EditText
+			android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+			android:textColorHint="@android:color/white"
+			android:hint="Password"
+            android:ems="10"
+            android:id="@+id/etPassword" />
+
+		<Button
+			android:layout_width="220dp"
+			android:layout_height="40dp"
+			android:layout_marginTop="20dp"
+			android:text="INGRESO"
+			android:id="@+id/btnLogin"
+			android:background="@drawable/login_btn"
+			android:textColor="@color/checktxt" />
+	</LinearLayout>
+
+</RelativeLayout><!-- From: file:/C:/Users/maria/Documents/RoamTouch/menuserver/AStudio/restomatic/menuserver/menuServer/src/main/res/layout-land/login_activity.xml -->

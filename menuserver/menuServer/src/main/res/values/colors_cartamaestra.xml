@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- File created by the Android Action Bar Style Generator
+
+     Copyright (C) 2012 readyState Software Ltd
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <color name="background_splash">#add1df</color>
+    <color name="pressed_cartamaestra">#CCdb2a1d</color>
+    
+    <!--VALORES COLORES GENERALES -->
+    <color name="color_title_text_actionbar">#ffffff</color>    
+    <color name="background_list_left">#add1df</color>
+    <color name="background_detail_right">#f5f3e7</color>
+    <color name="color_selector_seleccionado">#d6cea9</color>
+    <color name="color_selector_normal">#eee9d3</color>
+     
+    <!--ADMIN MESAS-->    
+    <color name="mesas_color_nuemero_mesa">#302a26</color> 
+
+    <!--COLORES FORMS-->    
+    <color name="forms_color_fondo_login">#add1df</color>
+    <color name="forms_color_fondo_input_text">#f5f3e7</color>
+
+    <color name="login_background">#df3838</color>
+
+	 <!--COLORES SELECTOR-->    
+    <color name="menu_row_line_not_selected">#f2eac3</color>
+    <color name="menu_row_not_selected">#f5f3e7</color>
+	
+	<color name="menu_row_line_selected">#f2eac3</color>
+    <color name="menu_row_selected">#f5f3e7</color>
+	
+	<color name="menu_row_line_normal">#f2eac3</color>
+    <color name="menu_row_normal">#f5f3e7</color>
+    
+    <color name="list_item_order_detail_total">#91896f</color>
+    <color name="list_item_order_detail_user_and_table">#F1DA42</color>
+    
+    
+    
+</resources>

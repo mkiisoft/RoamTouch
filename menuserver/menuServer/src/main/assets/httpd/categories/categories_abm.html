@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+    <!-- Scripts -->  
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <script src="../js/functions.js"></script>
+    <script src="../js/jquery.form.js"></script>
+
+    <script type="text/javascript">
+
+    var checkboxes = new Array();
+    var checkboxes_remove = new Array();
+
+    /* Funcion para obtener las categorias existentes */
+    function get_categories(){
+          $.ajax({
+                  type: 'POST',       
+                  url: url_href, 
+                  data: { 
+                    'action': GET_CATEGORIES
+                  },
+                  beforeSend: function(){
+                      $('#loading').toggleClass('off');
+                  },
+                  success: function(data){
+
+                      $('#loading').toggleClass('off');  
+
+                      if( !($.isEmptyObject(data)) ){
+
+                          $('#table_categories').html("<thead>"+
+                              "<th>Nombre de la Categor&iacute;a</th>"+
+                              "<th>Nombre del Men&uacute;</th>"+
+                              "<th colspan='2'></th>"+
+                              "</thead>"+
+                              "<tbody>"+
+                              "<body>"+
+                              "</tbody>");
+
+                          for (var i=0, len=data.length; i < len; i++) {
+
+                              if( data[i]._id != undefined ){
+
+                                  $('#table_categories > tbody').append(
+                                    "<tr class="+ data[i]._id +">"+
+                                      "<td class='category_name'>"+ data[i].description +"</td>"+
+                                      "<td class='description_menu'>"+ data[i].description_menu +"</td>"+
+                                      "<td>"+
+                                        "<a href='javascript:;' onclick='edit_category("+ data[i]._id+")'><i class='icon-edit'></i>Editar</a>"+
+                                      "</td>"+
+                                      "<td>"+
+                                        "<a href='javascript:;' onclick='delete_category("+ data[i]._id +")'><i class='icon-remove-circle'></i>Eliminar</a>"+
+                                      "</td>"+
+                                    "</tr>");   
+                              }              
+                          }
+                      }else{
+                        
+                      }
+
+                  },
+                  complete: function(){
+                      $('.scroll_table_categories').show();
+                      $('#add_new_category').show();
+                  }
+          });    
+    }              
+
+    /* Obtengo los menus existentes */
+    function get_menus( div_id ){
+      
+          $.ajax({
+              type: 'POST',       
+              url: url_href, 
+              data: { 
+                'action': GET_MENUS
+              },
+              success: function(data){               
+                for (var i=0, len=data.length; i < len; i++) {                    
+                    //$('#'+div_id).append("<option value=" + data[i]._id + ">" + data[i].description + "</option>");      
+                    $('#' + div_id ).append("<label class='checkbox'><input type='checkbox' class='menu "+ data[i]._id +"' value="+ data[i]._id +">" + data[i].description + "</label>");
+                }
+              }
+          });  
+    }
+
+    /* Funcion para eliminar una categoria  */
+    function delete_category(category_id){
+
+        if ( confirm("¿Está seguro de eliminar la categoría seleccionada?") ) {
+
+            $('#tables_categories > tbody > tr.' + category_id).remove();              
+
+            $.ajax({
+                type: 'POST',       
+                url: url_href, 
+                data: {             
+                'category_id': category_id,         
+                'action': DELETE_CATEGORY
+                },
+                success: function(msg){
+                    $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>La categor&iacute;a se elimin&oacute; con &eacute;xito!</div>");
+
+                    get_categories();
+            
+                    $('#message').fadeOut(4000, function() {
+                        $('#alert_message').remove();
+                        $('#message').css('display','block');
+                    });
+                }         
+            });   
+
+        }
+    }
+
+    /* Funcion para editar un menu */
+    function edit_category( category_id ){        
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: {             
+            'category_id': category_id,          
+            'action': GET_MENUS_BY_CATEGORY_ID
+            },
+            success: function(data){ 
+                
+                $('#add_categories_form').hide();
+                $('.scroll_table_categories').hide(); 
+                $('#add_new_category').hide(); 
+
+                $('#edit_action').val(UPDATE_CATEGORY);
+
+                $('#edit_categories_form').show();                
+
+                $('#category_id').val(category_id);
+                $('#edit_description_category').val(data[0].description);                
+                //$('#edit_menus').val(data[0].menu_id);
+                
+                for (var i=0, len=data.length; i < len; i++) {
+                    //alert(data[i].menu_id);
+                    $( '.menu.' + data[i].menu_id ).prop('checked',true);
+                    checkboxes.push( data[i].menu_id ); 
+                            
+                }     
+                $('#edit_menus_ids').val( checkboxes );
+                              
+            }         
+        });   
+    }
+
+    $(document).ready(function(){  
+
+          get_loading_image();
+          
+          /* Obtengo las categorias existentes */
+          get_categories();
+
+          /* Obtengo los menus existentes */
+          get_menus('menus');
+
+          /* Obtengo los menus existentes */
+          get_menus('edit_menus');
+
+          $('#add_categories_form').ajaxForm({
+
+              beforeSubmit: function(arr, $form, options) { 
+                // The array of form data takes the following form: 
+                console.log(arr);
+                console.log(options);
+                
+                /* Si no selecciono ningun menu */
+                if( arr[1].value == "" ){
+                    
+                    $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe seleccionar al menos un Menú.</div>");
+
+                  $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                  });
+                
+                  return false;
+
+                }
+
+                /* Si no escribio la descripcion de la categoria */
+                if( arr[2].value == "" ){
+                
+                  $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe ingresar la descripción de la categoría.</div>");
+
+                  $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                  });
+                
+                  return false;
+                  
+                }   
+                
+
+              },              
+              success: function() {
+
+                   $('#add_categories_form').hide();
+                        $('#description_category').val('');
+                        $('#menus').val('');
+                        
+                        $('.scroll_table_categories').hide();
+
+                        $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El men&uacute; se cre&oacute; con &eacute;xito!</div>");
+                        
+                        get_categories();
+                        
+                        $('#message').fadeOut(4000, function() {
+                            $('#alert_message').remove();
+                            $('#message').css('display','block');
+                        });
+                                    
+              }
+          });
+          
+          /* Agrego una nueva categoria */
+          /*
+          $("#submit_category").click(function() {    
+              var description_category = $("#description_category").val();                            
+              var menus_ids = $('#menus_ids').val();              
+
+              /* Verifico que el menu elegido sea valido */
+              //if( ( menu_id != 0 ) && ( menu_id != 'undefined' ) ){
+
+                  /*$.ajax({
+                      type: 'POST',       
+                      url: url_href, 
+                      data: {             
+                      'description_category': description_category, 
+                      'menus_ids': menus_ids,        
+                      'action': INSERT_CATEGORY
+                      },
+                      success: function(data){
+                        $('#add_categories_form').hide();
+                        $('#description_category').val('');
+                        $('#menus').val('');
+                        
+                        $('.scroll_table_categories').hide();
+
+                        $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El men&uacute; se cre&oacute; con &eacute;xito!</div>");
+                        
+                        get_categories();
+                        
+                        $('#message').fadeOut(4000, function() {
+                            $('#alert_message').remove();
+                            $('#message').css('display','block');
+                        });
+                      }
+                  }); 
+              /*}else{
+                $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe elegir un menu v&aacute;lido!</div>");
+
+                $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                });
+              }*/
+       //   });   
+
+        $('#edit_categories_form').ajaxForm({
+
+            beforeSubmit: function(arr, $form, options) { 
+                // The array of form data takes the following form: 
+                console.log(arr);
+                console.log(options);
+                //return false;
+                
+                /* Si no selecciono ningun menu */
+                if( arr[2].value == "" ){
+                    
+                    $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe seleccionar al menos un Menú.</div>");
+
+                  $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                  });
+                
+                  return false;
+
+                }
+
+                /* Si no escribio la descripcion de la categoria */
+                if( arr[4].value == "" ){
+                
+                  $('#message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe ingresar la descripción de la categoría.</div>");
+
+                  $('#message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#message').css('display','block');
+                  });
+                
+                  return false;
+                  
+                }   
+                
+
+              },              
+              success: function() {
+
+                  $('#edit_categories_form').hide();
+                      $('#category_id').val('');
+                      $('#edit_description_category').val('');
+                      $('#edit_menus').val(''); 
+
+                      $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>La categor&iacute; se actualiz&oacute; con &eacute;xito!</div>");
+                      
+                      get_categories();                      
+
+                      $('#message').fadeOut(4000, function() {
+                          $('#alert_message').remove();
+                          $('#message').css('display','block');
+                      });
+                                    
+              }
+
+        });
+
+        /* Edito una categoria */
+        /*
+        $("#edit_category").click(function() {    
+              var description_category = $("#edit_description_category").val();
+              var menus_ids = $('#edit_menus_ids').val(); 
+              var category_id = $('#category_id').val();
+              var remove_menus_ids = $('#remove_menus_ids').val();
+
+              $.ajax({
+                  type: 'POST',       
+                  url: url_href, 
+                  data: {           
+                  'category_id' : category_id,  
+                  'description_category': description_category,   
+                  'menus_ids': menus_ids,    
+                  'remove_menus_ids': remove_menus_ids,              
+                  'action': UPDATE_CATEGORY
+                  },
+                  success: function(data){
+                      $('#edit_categories_form').hide();
+                      $('#category_id').val('');
+                      $('#edit_description_category').val('');
+                      $('#edit_menus').val('');                      
+
+                      $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>La categor&iacute; se actualiz&oacute; con &eacute;xito!</div>");
+                      
+                      get_categories();                      
+
+                      $('#message').fadeOut(4000, function() {
+                          $('#alert_message').remove();
+                          $('#message').css('display','block');
+                      });
+                  }
+              }); 
+        });*/    
+
+        $('#add_new_category').click(function(){  
+
+            $('input[type=checkbox]').prop('checked',false);                  
+
+            $('.scroll_table_categories').hide();   
+            $(this).hide();       
+            $('#edit_categories_form').hide();
+            $('#category_id').val('');
+            $('#menus').val('');           
+
+            $('#action').val(INSERT_CATEGORY);
+
+            $('#add_categories_form').show();
+        });    
+
+        /* Agrego los checkboxes seleccionados a un array de categorias */
+        $("#add_categories_form").delegate("input[type='checkbox']", 'change', function() {
+            var $this = $(this);
+            console.log($this.prop('checked'));
+
+            if ( $this.prop( 'checked' ) ) {                                                  
+                checkboxes.push( $this.val() );                               
+            } else {
+                /* Elimino del array */
+                var index = checkboxes.indexOf( $this.val() );
+                checkboxes.splice(index, 1);                 
+            }
+            //console.log(checkboxes);
+            $('#menus_ids').val( checkboxes );             
+        });     
+
+        /* Agrego los checkboxes seleccionados a un array de categorias */
+        $("#edit_categories_form").delegate("input[type='checkbox']", 'change', function() {
+            var $this = $(this);
+            console.log($this.prop('checked'));
+
+            if ( $this.prop( 'checked' ) ) {                                                  
+                checkboxes.push( $this.val() ); 
+				
+				var index = checkboxes_remove.indexOf( $this.val() );
+                /* Si el valor existe en el array de checkboxes lo borro, sino no */
+				if( index == 0 ){
+					checkboxes_remove.splice(index, 1);
+				}
+					
+            } else {
+                /* Elimino del array */
+                checkboxes_remove.push( $this.val() );
+                var index = checkboxes.indexOf( $this.val() );
+                checkboxes.splice(index, 1); 
+                                   
+            }
+            //console.log(checkboxes);
+            $('#edit_menus_ids').val( checkboxes );   
+            $('#remove_menus_ids').val( checkboxes_remove );          
+        });           
+    });    
+    
+    </script>
+
+  </head>
+  
+  <body>
+
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+          <!-- row-fluid: start -->
+          <div class="row-fluid">
+
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+
+              <!-- container-fluid: start -->
+              <div id="content" class="span9" style="display:none;">
+
+                  <div id="message"></div>   
+
+                  <div>
+                    <button type="button" id="add_new_category" class="btn btn-success" style="margin-top:10px; display:none;">Agregar Categoría</button> 
+                  </div>   
+
+                  <div class="scroll_table_categories">
+
+                      <div id="loading" class="off"><img src="#" id="loading_img"/><p style="font-weight: bold;">cargando...</p></div>
+
+                      <table class="table table-hover" id="table_categories">                
+                      </table>      
+                  </div>
+
+                  <form class="form-horizontal" id="add_categories_form" enctype="multipart/form-data" method="post" style="display:none;">
+                    <fieldset>
+
+                        <input type="hidden" name="action" id="action" value="">
+
+                        <legend>Agregar Categoría</legend>  
+                        <input type="hidden" id="menus_ids" name="menus_ids" />                        
+                        <div class="control-group">
+                          <label class="control-label">Nombre de la Categor&iacute;a:</label>                  
+                          <div class="controls">
+                              <input type="text" class="span3" id="description_category" name="description_category"/>
+                          </div>
+                        </div>
+
+                        <div class="control-group" id="menus_group">
+                          <div class="span2" id="menus" style="margin-left: 200px;"></div>
+                        </div>
+
+                        <div class="form-actions">                          
+                          <input type="submit"  class="btn btn-primary" value="Crear" >
+                          <button class="btn">Cancelar</button>
+                        </div>
+
+                    </fieldset>              
+                  </form>
+
+                  <form class="form-horizontal" id="edit_categories_form" enctype="multipart/form-data" method="post" style="display:none;">
+                    <fieldset>
+
+                        <input type="hidden" name="edit_action" id="edit_action" value="">
+
+                        <legend>Editar Categor&iacute;a</legend>  
+                        <input type="hidden" id="category_id" name="category_id" />
+                        <input type="hidden" id="edit_menus_ids" name="menus_ids" />
+                        <input type="hidden" id="remove_menus_ids" name="remove_menus_ids" />
+                        <div class="control-group">
+                          <label class="control-label">Nombre de la Categor&iacute;a:</label>                  
+                          <div class="controls">
+                              <input type="text" class="span3" id="edit_description_category" name="description_category" value=""/>
+                              <!--<input type="hidden" id="category_id" value="">-->
+                              
+                          </div>
+                        </div>
+
+                        <div class="control-group" id="menus_group">
+                          <div class="span2" id="edit_menus" style="margin-left: 200px;"></div>
+                        </div>
+
+                        <div class="form-actions">
+                          <input type="submit"  class="btn btn-primary" value="Editar" >
+                          <button class="btn">Cancelar</button>
+                        </div>
+
+                    </fieldset>              
+                  </form>
+              </div>     
+              <!-- container-fluid: end -->    
+
+          </div> 
+          <!-- row-fluid: end --> 
+
+      </div>
+      <!-- container-fluid: end -->
+
+  </body>
+</html>

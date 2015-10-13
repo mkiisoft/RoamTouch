@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"   
+    android:fromAlpha="0.0"
+    android:repeatCount="infinite"    
+    android:toAlpha="1.0" 
+/>
+<!-- From: file:/C:/Users/maria/Documents/RoamTouch/menuserver/AStudio/restomatic/menuserver/menuServer/src/main/res/anim/blink.xml -->

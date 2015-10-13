@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+	<link href="../bootstrap/css/bootstrap-table.css" rel="stylesheet">
+  
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+  
+    <!-- Scripts --> 
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+	<script src="../bootstrap/js/bootstrap-table.js"></script>
+    <script src="../js/functions.js"></script>	
+	   
+    <script src="../js/jquery.form.js"></script>
+  
+    <script type="text/javascript">
+       
+	   // PAGINATION
+	   //http://www.tutorialspoint.com/bootstrap/bootstrap_pagination.htm
+	   
+	   //TRABLE WITH JSON
+	   //http://wenzhixin.net.cn/p/bootstrap-table/docs/getting-started.html
+	   
+	  var $table;
+     $(document).ready(function(){    	 
+			$table  = $('#table');
+     }); 
+	 
+	function showLog( jsonUrl )
+	{
+		$table.bootstrapTable(			
+			'refresh',
+			{url: jsonUrl}
+		);						
+	};
+      
+    </script>
+	
+	<style type="text/css">
+		.bar {
+		  width: 300px;
+		}
+		
+		#progress {
+		  background: #eee;
+		  border: 1px solid #222;
+		  margin-top: 20px;
+		}
+		#progressbar {
+		  width: 0px;
+		  height: 24px;
+		  background: #333;
+		}
+	</style>
+		
+	<style>
+		.table-hover tbody tr:hover td,
+		.table-hover tbody tr:hover th {
+			background-color: #c9c9c9;
+		}
+	</style>
+  
+  </head>
+   
+  <body>
+  
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+  
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+            <!-- row-fluid: start -->
+            <div class="row-fluid">
+  
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+  
+              <!-- content: start -->
+              <div id="content" class="span9" style="display:none;">      
+			  
+				<legend>Registro de actividades diarias.</legend> 
+				
+				<div class="btn-group" role="group" aria-label="Elija un dia">				
+					<!-- WRITE LINKS FROM LOG FILE -->			
+				</div>						
+								
+				<table id="table"										
+					data-height="300"
+					data-toggle="table">
+					<thead>	
+						<tr>
+							<th data-field="ip"> IP </th>
+							<th data-field="fecha"> FECHA </th>							
+							<th data-field="action"> ACTION </th>
+							<th data-field="method"> METHOD </th>
+							<th data-field="pid"> PID </th>
+						</tr>
+					</thead>
+				</table>												      
+				  
+              </div>   
+              <!-- content: end -->  
+                 
+            </div>  
+            <!-- row-fluid: end -->
+      </div>
+      <!-- container-fluid: end -->
+  
+  </body>
+</html>

@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>CartaMaestraWeb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Estilos Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">    
+    <link href="../bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+    <!-- Scripts -->  
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <script src="../js/functions.js"></script>
+
+    <script src="../js/jquery.form.js"></script>    
+
+    <script type="text/javascript">
+
+    var checkboxes = new Array();
+	var checkboxes_remove = new Array();
+
+    /* Obtengo todos los menu items existentes */
+    function get_menu_items(){
+          $.ajax({
+                type: 'POST',       
+                url: url_href, 
+                data: {                   
+                  'action': GET_MENU_ITEMS
+                },
+                beforeSend: function(){
+                    $('#loading').toggleClass('off');
+                },
+                success: function(data){                        
+                  $('#loading').toggleClass('off'); 
+
+                  if( !($.isEmptyObject(data)) ){                        
+
+                        $('#table_menu_items').html("<thead>"+
+                            "<th>Nombre del Men&uacute; Item</th>"+
+                            "<th>Descripci&oacute;n</th>"+
+                            "<th>Precio</th>"+
+                            /*"<th>Imagen</th>"+*/
+                            /*"<th>Video</th>"+*/
+                            "<th colspan='2'></th>"+
+                            "</thead>"+
+                            "<tbody>"+
+                            "<body>"+
+                            "</tbody>");
+
+                        for (var i=0, len=data.length; i < len; i++) {
+
+                            var description = data[i].description;
+                            if( ( description == null ) || ( description == "" ) ) {
+                              description = 'Sin descripción';
+                            }
+
+                            if( data[i]._id != undefined ){
+								
+								var menu_item_table_row_class = "menu_item_table_row_" + data[i]._id;
+								
+                                $('#table_menu_items > tbody').append(
+                                  "<tr class="+ menu_item_table_row_class + ">"+
+                                    "<td class='menu_item_name'>"+ data[i].name +"</td>"+
+                                    "<td class='menu_item_description'>"+ description +"</td>"+
+                                    "<td class='menu_item_price'>$ "+ data[i].price +"</td>"+
+                                    /*"<td class='menu_item_img_large'>"+
+                                        "<a href='javasipcrt:;' id='menu_item_img_large' class='thickbox' title="+data[i].name+">"+
+                                        "<i class='icon-picture'></i>Imagen"+
+                                        "</a></td>"+
+                                    "<td class='menu_item_video'><a href='javascript:;' id='menu_item_video'><i class='icon-facetime-video'></i>Video</a></td>"+*/
+                                    "<td>"+
+                                      "<a href='javascript:;' onclick='edit_menu_item("+ data[i]._id+")'><i class='icon-edit'></i>Editar</a>"+
+                                    "</td>"+
+                                    "<td>"+
+                                      "<a href='javascript:;' onclick='delete_menu_item("+ data[i]._id +")'><i class='icon-remove-circle'></i>Eliminar</a>"+
+                                    "</td>"+
+                                  "</tr>");   
+
+                                //get_menu_item_thumbnail( data[i].menu_item_categories_id );
+                            }              
+                        }
+                      
+                      }
+                },
+                complete: function(){
+                    $('.scroll_table_menu_items').show();
+                    $('#add_new_menu_item').show();
+                }
+            }); 
+    }
+
+
+    /* Obtengo las categorias correspondientes a un menu */
+    function get_categories_by_menus_ids( div_id ){
+
+        var menus_ids = $( '#' + div_id ).val();
+
+        $.ajax({
+          type: 'POST',       
+          url: url_href, 
+          data: { 
+            'menus_ids': menus_ids,
+            'action': GET_CATEGORIES_BY_MENUS_IDS
+          },
+          success: function(data){         
+              
+            for(var i=0, leng=data.length; i < leng; i++){				
+        				for (var j=0, len = data[i].length; j < len; j++) {
+        					
+							var id = data[i][j]._id +  "-" +  data[i][j].menu_id;
+							var checkString = "<label class='checkbox'><input type='checkbox' id=" + id + " class='categories " + data[i][j]._id +"' value="+ data[i][j]._id + '-' + data[i][j].menu_id +">" + data[i][j].description + "</label>";
+													
+        					$( ".menu_" + data[i][j].menu_id ).append( checkString );
+							
+        				}		
+            }		
+          }		  
+        });   
+    }
+
+    /* Obtengo las categorias a las cuales esta asignado un menu item */
+    function get_categories_by_menu_item_id( menu_item_id ){
+
+        $.ajax({
+            type: 'POST',       
+            url: url_href, 
+            data: { 
+              'menu_item_id': menu_item_id,
+              'action': GET_CATEGORIES_BY_MENU_ITEM_ID
+            },
+            success: function(data){         
+                
+              for(var i=0, len=data.length; i < len; i++){
+
+                  var category_id = data[i].category_id;
+                  var menu_id = data[i].menu_id;
+
+                  var category_menu_id = category_id + "-" + menu_id;                  
+				  			  
+				  $( '#' + category_menu_id ).prop('checked', true);
+				  
+				  $( '#' + category_menu_id ).disabled;
+				  //$('.categories.' + data[i].category_id).prop('checked',true);
+				  
+                  checkboxes.push( category_menu_id );  
+                  $('#edit_categories_ids').val( checkboxes );                  
+                  
+              }                         
+              
+            }
+        });   
+
+    }
+	
+    /* Editar Menu Item */
+    function edit_menu_item( menu_item_id ){
+	
+		get_loading_image_edit(); 
+        
+        $.ajax({
+           type: 'POST',       
+              url: url_href, 
+              data: {         
+                'menu_item_id': menu_item_id,          
+                'action': GET_MENU_ITEM_THUMB_AND_VIDEO_BY_ID
+              },
+              success: function(data){   
+                  $('#add_menu_item_form').hide();         
+                  $('#edit_menu_item_form').show();    
+
+                  $('#edit_action').val(UPDATE_MENU_ITEM);
+
+                  $('.scroll_table_menu_items').hide(); 
+                  $('#add_new_menu_item').hide();                
+            
+                  $('#menu_item_id').val( menu_item_id ); 
+				  
+				  $('#edit_item_name').val(data[0].name); 
+                  $('#edit_item_description').val(data[0].description); 
+                  $('#edit_item_price').val(data[0].price); 
+
+                  $('#edit_image').attr( 'src', data[0].img_medium);
+
+                  var video_src = data[0].path;
+
+                  /* Si el video existe */
+                  if( video_src != undefined ){
+                      $('#menu_item_video').append("<video width='320' height='240' controls>"+
+                      "<source src=" + video_src + " type='video/mp4' id=" + data[0]._id + ">"+
+                      "Your browser does not support the video tag."+
+                      "</video>");     
+                  }
+
+                  /* Obtengo los menus existentes al editar un item */
+                  $.ajax({
+                      type: 'POST',       
+                      url: url_href, 
+                      data: { 
+                        'action': GET_MENUS
+                      },
+                      success: function(data){ 
+                        
+                        var array_menus_ids = new Array();
+
+                        for (var i=0, len=data.length; i < len; i++) {
+                            
+							var cl = "menu_" + data[i]._id;
+							
+                            $('#edit_menus').append("<div class=" + cl +  "><p><strong>" + data[i].description + "</strong></p>");
+
+                            $("." + cl ).addClass('span2');
+
+                            array_menus_ids.push( data[i]._id );
+                            
+                        }
+
+                        $('#edit_menus_ids').val( array_menus_ids );
+                        
+                        get_categories_by_menus_ids('edit_menus_ids');
+
+                      },
+					  complete: function(){
+								
+							setTimeout(function() {
+								get_categories_by_menu_item_id( menu_item_id );
+							}, 500);
+							
+					  }
+                  });     
+
+                  /* Agrego los checkboxes seleccionados a un array de categorias */
+                  $("#edit_menu_item_form").delegate("input[type='checkbox']", 'change', function() {
+                      var $this = $(this);
+                      console.log($this.prop('checked'));
+
+                      if ($this.prop('checked')) {      
+                        /* Agrego el id de la categori al array */          
+                        //checkboxes.push( '\"' + "id" + '\"' + ':' +  '\"' + $this.val() + '\"' );                               
+                        checkboxes.push( $this.val() );
+						
+						var index = checkboxes_remove.indexOf( $this.val() );
+                        /* Si el valor existe en el array de checkboxes lo borro, sino no */
+						if( index == 0 ){
+							checkboxes_remove.splice(index, 1);
+						}
+						
+                      } else {
+                          /* Elimino del array */
+						  checkboxes_remove.push( $this.val() );
+                          var index = checkboxes.indexOf( $this.val() );
+                          checkboxes.splice(index, 1);                
+                          //delete checkboxes[$this.attr('value')];
+                      }
+                      //console.log(checkboxes);
+                      $('#edit_categories_ids').val( checkboxes ); 
+					  $('#remove_categories_ids').val( checkboxes_remove );						  
+                  });
+
+              }             
+            
+        });
+    }
+
+    /* Eliminar Menu Item */
+    function delete_menu_item( menu_item_id ){
+
+      if ( confirm("¿Está seguro de eliminar el Item selccionado?") ) {
+          $.ajax({
+             type: 'POST',       
+                url: url_href, 
+                data: {         
+                  'menu_item_id': menu_item_id,          
+                  'action': DELETE_MENU_ITEM
+                },
+                success: function(data){   
+
+                  $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El Men&uacute; Item se elimin&oacute; con &eacute;xito!</div>");
+
+                  get_menu_items();
+          
+                  $('#message').fadeOut(4000, function() {
+                      $('#alert_message').remove();
+                      $('#message').show();
+                  });
+                }             
+              
+          });
+      }
+    }
+  
+    $(document).ready(function(){        
+
+        get_loading_image();        
+
+        get_menu_items();
+
+        $('#add_new_menu_item').click(function(){
+
+            get_loading_image_insert(); 		
+			     
+            $('.scroll_table_menu_items').hide();   
+            $(this).hide();       
+            $('#edit_menu_item_form').hide();
+            $('#menu_item_id').val('');
+            
+            $('#menus').show();
+
+            $('#add_menu_item_form').show();
+
+            $('#action').val( INSERT_MENU_ITEM );
+			
+            /* Obtengo los menus existentes al cargar la pagina */
+            $.ajax({
+                type: 'POST',       
+                url: url_href, 
+                data: { 
+                  'action': GET_MENUS
+                },
+                success: function(data){ 
+
+                  var array_menus_ids = new Array();
+
+                  for (var i=0, len=data.length; i < len; i++) {
+                      
+						var menu_class = "menu_" + data[i]._id;
+						$('#menus').append("<div class=" + menu_class + "><p><strong>" + data[i].description + "</strong></p>");
+						
+						$(".menu_" + data[i]._id).addClass('span2');
+
+						array_menus_ids.push( data[i]._id );
+                      
+                  }
+
+                  $('#menus_ids').val( array_menus_ids );
+                  
+                  get_categories_by_menus_ids( 'menus_ids');
+
+                }
+            });                   
+            
+            /* Agrego los checkboxes seleccionados a un array de categorias */
+            $("#add_menu_item_form").delegate("input[type='checkbox']", 'change', function() {
+                var $this = $(this);
+                console.log($this.prop('checked'));
+
+                if ( $this.prop( 'checked' ) ) {      
+                    /* Agrego el id de la categori al array */      
+                    checkboxes.push( $this.val() );                               
+                } else {
+                    /* Elimino del array */
+					var index = checkboxes.indexOf( $this.val() );
+                    checkboxes.splice(index, 1);                
+                }
+                //console.log(checkboxes);
+                $('#categories_id').val( checkboxes );				
+            });
+        });
+
+        $('#edit_cancel').click(function(){
+            $('#edit_menu_item_form').hide();
+            $('#add_new_menu_item').show()
+            get_menu_items();
+        });
+
+        //binds to onchange event of your input field
+        $('#item_video').bind('change', function() {
+
+            /* Get file size (bytes) */
+            var file_size = this.files[0].size;
+            /* Get file type */
+            var file_type = this.files[0].type;
+
+            /* If file size is greater than 6 MB (10000000 bytes) */
+            if( file_size > 10000000 ){
+                console.log('El tamaño es mayor a 6 MB.');
+
+                $('#file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El tamaño del archivo supera los 6 MB!</div>");
+        
+                $('#file_message').fadeOut(5000, function() {
+                    $('#alert_message').remove();
+                    $('#file_message').show();
+                });
+
+                $('#item_video').val('');
+
+            }else{
+                console.log('El tamaño es menor a 6 MB.');
+            }
+            
+            /* If file type is different of mp4 or ogg, i show an error message */
+            if( ( (file_type != 'video/mp4') && (file_type == 'video/ogg') ) || (file_type != 'video/ogg') && (file_type == 'video/mp4') ){ 
+					
+				    console.log('El formato del video es correcto.');
+
+            }else{
+			
+				    console.log('El formato del video es incorrecto.');
+
+                $('#file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El formato del video es incorrecto!</div>");
+        
+                $('#file_message').fadeOut(5000, function() {
+                    $('#alert_message').remove();
+                    $('#file_message').show();
+                });
+
+                $('#item_video').val('');
+                
+            }
+
+        });
+		
+		$('#edit_item_video').bind('change', function() {
+
+            /* Get file size (bytes) */
+            var file_size = this.files[0].size;
+            /* Get file type */
+            var file_type = this.files[0].type;
+
+            /* If file size is greater than 6 MB (10000000 bytes) */
+            if( file_size > 10000000 ){
+                console.log('El tamaño es mayor a 6 MB.');
+
+                $('#edit_file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El tamaño del archivo supera los 6 MB!</div>");
+        
+                $('#edit_file_message').fadeOut(5000, function() {
+                    $('#alert_message').remove();
+                    $('#file_message').show();
+                });
+
+                $('#edit_item_video').val('');
+
+            }else{
+                console.log('El tamaño es menor a 6 MB.');
+            }
+            
+            /* If file type is different of mp4 or ogg, i show an error message */
+            if( ( (file_type != 'video/mp4') && (file_type == 'video/ogg') ) || (file_type != 'video/ogg') && (file_type == 'video/mp4') ){ 
+					
+				    console.log('El formato del video es correcto.');
+
+            }else{
+			
+				    console.log('El formato del video es incorrecto.');
+
+                $('#edit_file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El formato del video es incorrecto!</div>");
+        
+                $('#edit_file_message').fadeOut(5000, function() {
+                    $('#alert_message').remove();
+                    $('#file_message').show();
+                });
+
+                $('#edit_item_video').val('');
+                
+            }
+
+        });
+
+        var bar = $('.bar');
+        var percent = $('.percent');
+        var status = $('#status');
+
+        $('#add_menu_item_form').ajaxForm({
+			
+      			beforeSubmit: function(arr, $form, options) { 
+      				// The array of form data takes the following form: 
+      				
+              console.log(arr);
+      				console.log(arr[1]);
+
+              /* Parametros */
+              var action = arr[0].value;
+              var categories_id = arr[1].value;
+              var menus_ids = arr[2].value; 
+              var item_name = arr[3].value;
+              var item_description = arr[4].value;
+              var item_price = arr[5].value;
+              var item_image = arr[6].value;
+              var item_video = arr[7].value;
+
+              /* Si no especifico el nombre del item */
+              if( item_name == "" ){
+                  $('#file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe ingresar el nombre del item.</div>");
+
+                  $('#file_message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#file_message').css('display','block');
+                  });
+                
+                  return false;
+              }
+
+              /* Si no indico el precio del item muestro mensaje de error */
+              else if( item_price == "" ){
+
+                  $('#file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe indicar el precio del item.</div>");
+
+                  $('#file_message').fadeOut(3000, function() {
+                    $('#alert_message').remove();
+                    $('#file_message').css('display','block');
+                  });
+                
+                  return false;
+              }
+
+              /* Si no eligio ninguna categoria */
+      				else if( categories_id == "" ){
+      				
+      					$('#file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe elegir al menos una categoría</div>");
+
+      					$('#file_message').fadeOut(3000, function() {
+      						$('#alert_message').remove();
+      						$('#file_message').css('display','block');
+      					});
+      				
+      					return false;
+      					
+      				}
+
+              /* Si no cargo ninguna imagen */
+              else if( item_image == "" ){
+              
+                $('#file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe cargar una imagen del item.</div>");
+
+                $('#file_message').fadeOut(3000, function() {
+                  $('#alert_message').remove();
+                  $('#file_message').css('display','block');
+                });
+              
+                return false;
+                
+              }
+                           
+      			},
+
+            beforeSend: function() {
+                  status.empty();
+                  var percentVal = '0%';
+                  bar.width(percentVal)
+                  percent.html(percentVal);
+
+				          $('#loading_insert').toggleClass('off');
+				          console.log('Procesando');                 
+
+            },
+            uploadProgress: function(event, position, total, percentComplete) {
+                  var percentVal = percentComplete + '%';
+                  bar.width(percentVal)
+                  percent.html(percentVal);                  
+            },
+            success: function() {
+                  var percentVal = '100%';
+                  bar.width(percentVal)
+                  percent.html(percentVal);                  
+            },
+            complete: function(xhr) {
+                  
+                  $('#loading_insert').toggleClass('off');      
+
+                  //status.html(xhr.responseText);
+                  
+                  var response = $.parseJSON(xhr.responseText);
+                  var status = response[0].status;
+
+                  if( status == 1 ){
+
+                      console.log('Se insertó el menu item');  
+
+                      $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El Item se agregó con &eacute;xito!</div>");
+
+                      $('#message').fadeOut(4000, function() {
+                          $('#alert_message').remove();
+                          $('#message').css('display','block');
+                      });
+						
+					  $("#add_menu_item_form").hide();
+					  
+                      get_menu_items();
+            
+                  }                 	                           
+            }
+
+        });
+		
+		$('#edit_menu_item_form').ajaxForm({
+		
+			beforeSubmit: function(arr, $form, options) { 
+				// The array of form data takes the following form: 
+				
+				console.log(arr);
+        
+        /* Parametros */
+        var edit_action = arr[0].value;
+        var edit_categories_id = arr[1].value;
+        var remove_categories_ids = arr[2].value; 
+        var remove_categories_ids = arr[3].value; 
+        var menu_item_id = arr[4].value; 
+        var edit_item_name = arr[5].value;
+        var edit_item_description = arr[6].value;
+        var edit_item_price = arr[7].value;
+        var edit_item_image = arr[8].value;
+        var edit_item_video = arr[9].value;
+
+        /* Si no especifico el nombre del item */
+        if( edit_item_name == "" ){
+            $('#edit_file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe ingresar el nombre del item.</div>");
+
+            $('#edit_file_message').fadeOut(3000, function() {
+              $('#alert_message').remove();
+              $('#edit_file_message').css('display','block');
+            });
+          
+            return false;
+        }
+
+        /* Si no indico el precio del item muestro mensaje de error */
+        else if( edit_item_price == "" ){
+
+            $('#edit_file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe indicar el precio del item.</div>");
+
+            $('#edit_file_message').fadeOut(3000, function() {
+              $('#alert_message').remove();
+              $('#edit_file_message').css('display','block');
+            });
+          
+            return false;
+        }
+                
+				/* Si no eligio ninguna categoria */
+				else if( edit_categories_id == "" ){
+				
+  					$('#edit_file_message').append("<div class='alert alert-error' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>Debe elegir al menos una categoría</div>");
+
+  					$('#edit_file_message').fadeOut(3000, function() {
+  						$('#alert_message').remove();
+  						$('#edit_file_message').css('display','block');
+  					});
+  				
+  					return false;
+					
+				}
+        
+
+			},	
+            beforeSend: function() {
+                  status.empty();
+                  var percentVal = '0%';
+                  bar.width(percentVal)
+                  percent.html(percentVal);
+
+				          $('#loading_edit').toggleClass('off');
+				          console.log('Procesando');                 
+
+            },
+            uploadProgress: function(event, position, total, percentComplete) {
+                  var percentVal = percentComplete + '%';
+                  bar.width(percentVal)
+                  percent.html(percentVal);                  
+            },
+            success: function() {
+                  var percentVal = '100%';
+                  bar.width(percentVal)
+                  percent.html(percentVal);                  
+            },
+            complete: function(xhr) {
+                  
+                  $('#loading_edit').toggleClass('off');      
+
+                  //status.html(xhr.responseText);
+                  
+                  var response = $.parseJSON(xhr.responseText);
+				  
+				  console.log(response);
+				  
+                  var status = response[0].status;
+
+                  if( status == 1 ){
+
+                      console.log('Se Actualizò el menu item');  
+
+                      $('#message').append("<div class='alert alert-success' id='alert_message'><button type='button' class='close' data-dismiss='alert'>x</button>El Item se actualizó con &eacute;xito!</div>");
+
+                      $('#message').fadeOut(4000, function() {
+                          $('#alert_message').remove();
+                          $('#message').css('display','block');
+                      });
+						
+					  $("#edit_menu_item_form").hide();
+					  
+                      get_menu_items();
+            
+                  }                 	                           
+            }
+
+        });
+        
+        
+    });    
+
+    </script>
+
+  </head>
+  
+  <body>
+
+      <!-- nav menu -->
+      <div id="nav_menu"></div>
+
+      <!-- container-fluid: start -->
+      <div class="container-fluid">
+            <!-- row-fluid: start -->
+            <div class="row-fluid">
+
+              <!-- sidebar menu -->
+              <div id="sidebar_menu"></div>
+
+              <!-- content: start -->
+              <div id="content" class="span9" style="display:none;">
+
+                  <div id="message"></div>   
+
+                  <div>
+                    <button type="button" id="add_new_menu_item" class="btn btn-success" style="margin-top: 10px;">Agregar Menú Item</button> 
+                  </div>              
+                  
+                  <div class="scroll_table_menu_items">
+
+                    <div id="loading" class="off"><img src="#" id="loading_img"/><p style="font-weight: bold;">cargando...</p></div>
+
+                    <table class="table table-hover" id="table_menu_items">                
+                    </table> 
+                  </div>
+
+                  <form class="form-horizontal" enctype="multipart/form-data" method="post" id="add_menu_item_form" style="display:none;" action="items_abm_success.html">
+
+                    <input type="hidden" name="action" id="action">
+                    <input type="hidden" name="categories_id" id="categories_id">   
+                    <input type="hidden" name="menus_ids" id="menus_ids">           
+
+                    <fieldset>
+                        <legend>Administraci&oacute;n de los Items del Men&uacute;</legend>  
+                        
+                        <div class="control-group">
+                          <label class="control-label">Nombre del Item:</label>                  
+                          <div class="controls">
+                              <input type="text" class="span3" id="item_name" name="item_name"/>
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Descripci&oacute;n:</label>                  
+                          <div class="controls">
+                              <!--<input type="text" class="span3" id="item_description" name="item_description"/>-->
+							  <textarea rows="3" id="item_description" name="item_description"></textarea>
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Precio:</label>                  
+                          <div class="controls">
+                              <div class="input-prepend">
+                                <span class="add-on">$</span>
+                                <input class="span12" id="item_price" type="text" name="item_price">
+                              </div>
+                          </div>
+                        </div>
+
+                        <div class='control-group' id="menus" style="display:none;">                        
+                        </div>
+
+                        <div class="control-group">  
+                          <label class="control-label" for="fileInput">Imagen:</label>  
+                          <div class="controls">  
+                            <input class="input-file" id="item_image" name="item_image" type="file">  
+                          </div>  
+                        </div>  
+
+                        <div class="control-group">  
+                          <label class="control-label" for="fileInput">Video:</label>  
+                          <div class="controls">  
+                            <input class="input-file" id="item_video" name="item_video" type="file">
+                            <span class="help-block">El formato debe ser Ogg o mp4.</span>
+                            <span class="help-block">El archivo no puede superar los 10 MB.</span>  
+                          </div>  
+                        </div>  
+
+                        <div class="control-group">
+                          <div class="progress" style="widht: 30px; margin-left: 180px;width: 245px;">
+                              <div class="bar"></div >
+                              <div class="percent">0%</div>
+                          </div> 
+                        </div>
+
+                        <div id="status"></div>
+
+                        <div id="loading_insert" class="off" style="widht: 30px; margin-left: 180px;width: 245px;"><img src="#" id="loading_img_insert"/><p style="font-weight: bold; text-align:center;">procesando...</p></div>
+
+						<div id="file_message"></div>  
+						
+                        <div class="form-actions">
+                          <!--<button type="submit" id="submit_menu_item" class="btn btn-primary">Crear</button>-->
+                          <input type="submit" class="btn btn-primary" value="Crear" /> 
+                          <button class="btn">Cancelar</button>                    
+                        </div>
+
+                    </fieldset>              
+                  </form>
+
+                  <form class="form-horizontal" enctype="multipart/form-data" method="post" id="edit_menu_item_form" style="display:none;" action="edit_item_success.html">
+
+                    <input type="hidden" name="edit_action" id="edit_action">
+                    <input type="hidden" name="edit_categories_ids" id="edit_categories_ids">   
+                    <input type="hidden" name="remove_categories_ids" id="remove_categories_ids">
+					<input type="hidden" name="edit_menus_ids" id="edit_menus_ids">      
+                    <input type="hidden" name="menu_item_id" id="menu_item_id">           
+
+                    <fieldset>
+                        <legend>Editar Item</legend>  
+                        
+                        <div class="control-group">
+                          <label class="control-label">Nombre del Item:</label>                  
+                          <div class="controls">
+                              <input type="text" class="span3" id="edit_item_name" name="edit_item_name" value=" "/>
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Descripci&oacute;n:</label>                  
+                          <div class="controls">
+                              <!--<input type="text" class="span3" id="edit_item_description" name="edit_item_description" value=" "/>-->
+							  <textarea rows="3" id="edit_item_description" name="edit_item_description" value=" "></textarea>
+                          </div>
+                        </div>
+
+                        <div class="control-group">
+                          <label class="control-label">Precio:</label>                  
+                          <div class="controls">
+                              <div class="input-prepend">
+                                <span class="add-on">$</span>
+                                <input class="span12" id="edit_item_price" type="text" name="edit_item_price" value=" ">
+                              </div>
+                          </div>
+                        </div>
+
+                        <div class='control-group' id="edit_menus">                        
+                        </div>
+
+                        <div class="control-group">  
+                          <label class="control-label" for="fileInput">Imagen:</label>  
+                          <div class="controls">  
+                            <img width="150px" height="150px" id="edit_image" src="">
+                            <input class="input-file" id="edit_item_image" name="edit_item_image" type="file" value=" ">  
+                          </div>  
+                        </div>  
+
+                        <div class="control-group">  
+                          <label class="control-label" for="fileInput">Video:</label>  
+                          <div class="controls">  
+                            <div id="menu_item_video"></div>
+                            <input class="input-file" id="edit_item_video" name="edit_item_video" type="file" value=" ">  
+							<span class="help-block">El formato debe ser Ogg o mp4.</span>
+                            <span class="help-block">El archivo no puede superar los 10 MB.</span>  
+                          </div>  
+                        </div>  				
+						
+						<div class="control-group">
+                          <div class="progress" style="widht: 30px; margin-left: 180px;width: 245px;">
+                              <div class="bar"></div >
+                              <div class="percent">0%</div>
+                          </div> 
+                        </div>
+
+                        <div id="status"></div>
+
+                        <div id="loading_edit" class="off" style="widht: 30px; margin-left: 180px;width: 245px;"><img src="#" id="loading_img_edit"/><p style="font-weight: bold; text-align:center;">procesando...</p></div>
+
+						<div id="edit_file_message"></div>
+						
+                        <div class="form-actions">
+                          <button type="submit" id="edit_menu_item" class="btn btn-primary">Editar</button>
+                          <button class="btn" id="edit_cancel">Cancelar</button>                    
+                        </div>
+
+                    </fieldset>              
+                  </form>
+              </div>   
+              <!-- content: end -->    
+                
+            </div>  
+            <!-- row-fluid: end -->
+      </div>
+      <!-- container-fluid: end --> 
+
+  </body>
+</html>
